@@ -1,5 +1,5 @@
 # Segment Cache for WP Engine
-## A WordPress plugin to enable segmented content caching via a shortcode
+## A WordPress plugin to enable segmented content caching via shortcode
 
 ### About
 Help your site convert visitors into subscribers by serving content specific to their needs. And do it quickly by using WP Engine's built-in caching system.
@@ -15,13 +15,13 @@ Help your site convert visitors into subscribers by serving content specific to 
 2. Serve content specific to that type of user by using the `segment-cache-display` shortcode.
 
     ```
-    [segment-cache-display setment-on="developer"]
+    [segment-cache-display segment-on="developer"]
         This content is for developers only.
     [/segment-cache-display]
     ```
     
     ```
-    [segment-cache-display setment-on="marketer"]
+    [segment-cache-display segment-on="marketer"]
         This content is for marketers only.
     [/segment-cache-display]
     ```
