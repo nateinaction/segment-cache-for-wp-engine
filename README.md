@@ -98,10 +98,10 @@ To implement this, you'll need to contact support and ask them to add the follow
     proxy_set_header X-WPENGINE-SEGMENT $segment_header_name;
     ```
 
-With these patterns in the NGINX config, your application will still need to pass the Vary header in the response.
+With these patterns in the NGINX config, your application will still need to pass the `Vary` header in the response.
 
 ```
 header("Vary: X-WPENGINE-SEGMENT");
 ```
 
-If you're using this plugin, the Vary header is set for you.
+If you're using this plugin, the `Vary` header is set for you.
