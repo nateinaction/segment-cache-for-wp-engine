@@ -105,3 +105,15 @@ header("Vary: X-WPENGINE-SEGMENT");
 ```
 
 If you're using this plugin, the `Vary` header is set for you.
+
+### Segment by bot traffic
+
+WP Engine already forwards bot traffic to its own caching bucket. If you want your site to display data in a way only bots will see, you can implement something like the following:
+
+```
+if ($_SERVER["HTTP_X_IS_BOT"] == "1") {
+    echo "Hello bot!";
+} else {
+    echo "Hello world!";
+}
+```
