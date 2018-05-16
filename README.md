@@ -103,3 +103,5 @@ With these patterns in the NGINX config, your application will still need to pas
 ```
 header("Vary: X-WPENGINE-SEGMENT");
 ```
+
+If you're using this plugin, the Vary header is set for you.
