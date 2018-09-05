@@ -1,6 +1,7 @@
 SHELL := /bin/bash
 
 plugin_name := segment-cache-for-wp-engine
+plugin_version := $(shell sudo -u www-data wp plugin get $(plugin_name) --format=json | python3 -c 'import sys, json; print(json.load(sys.stdin)["version"])')
 
 plugin_dir := /var/www/html/wp-content/plugins/$(plugin_name)/
 cd_plugin_dir := cd $(plugin_dir)
@@ -14,6 +15,8 @@ cli_skip := --skip-themes --skip-plugins
 cli_path := --path="/var/www/html/"
 
 all: docker_start lint docker_install_wp docker_test
+
+shell: $(docker_compose) $(docker_exec) "$(cd_plugin_dir); /bin/bash"
 
 lint: lint_yaml lint_markdown lint_python lint_php
 
@@ -29,8 +32,8 @@ docker_clean:
 	$(docker_compose) stop | true
 	$(docker_compose) rm -v
 
-shell:
-	$(docker_compose) $(docker_exec) "$(cd_plugin_dir); /bin/bash"
+docker_build:
+	$(docker_compose) $(docker_exec) "$(cd_plugin_dir); make build"
 
 docker_install_wp:
 	$(docker_compose) $(docker_exec) "$(cd_plugin_dir); make install_wp"
@@ -83,3 +86,10 @@ setup_db:
 		--admin_password="test" \
 		--admin_email="test@test.com"
 	$(www_data) wp plugin activate $(plugin_name) $(cli_path) --quiet
+
+build:
+	mkdir -p build/$(plugin_name) artifacts
+	cp -r {$(plugin_name).php,src/,composer.json,composer.lock} build/$(plugin_name)
+	composer install -d build/$(plugin_name) --no-dev
+	cd build/ && zip -r ../artifacts/$(plugin_name)-$(plugin_version).zip $(plugin_name)
+	rm -r build/
