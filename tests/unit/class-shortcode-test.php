@@ -29,6 +29,13 @@ class Shortcode_Test extends \WP_UnitTestCase {
         $actual = $shortcode->validate_set_segment_atts($atts);
         $this->assertEquals($expect, $actual);
 
+        // tests html escaping
+		$atts = array('path' => '<script></script>');
+		$atts_expect = array('path' => '&lt;script&gt;&lt;/script&gt;');
+		$expect = array_merge($shortcode->default_set_segment_atts, $atts_expect); // latter keys overwrite exiting
+		$actual = $shortcode->validate_set_segment_atts($atts);
+		$this->assertEquals($expect, $actual);
+
         // test replacing attributes
         $atts = array('path' => '/blog/', 'expire' => 12345, 'secure' => true);
         $expect = array_merge($shortcode->default_set_segment_atts, $atts); // latter keys overwrite exiting

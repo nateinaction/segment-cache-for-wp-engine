@@ -40,14 +40,7 @@ RUN curl -o /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh
 # Install composer.
 COPY docker/bin/install-composer.sh /tmp/
 RUN mkdir /var/www/.composer/ && chown www-data:www-data /var/www/.composer/ \
-    && bash /tmp/install-composer.sh 
-
-# Install testing dependencies via Composer
-RUN sudo -u www-data composer global require \
-    phpunit/phpunit \
-    squizlabs/php_codesniffer \
-    wp-coding-standards/wpcs \
-    wimg/php-compatibility
+    && bash /tmp/install-composer.sh
 
 # Install stop-emails mu plugin
 COPY docker/bin/stop-emails.php /var/www/html/wp-content/mu-plugins/

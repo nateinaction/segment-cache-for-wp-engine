@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <ruleset name="Segment Cache for WP Engine" namespace="SegmentCacheWPE">
     <!-- Check WP Standards -->
-    <config name="installed_paths" value="/var/www/.composer/vendor/wp-coding-standards/wpcs,/var/www/.composer/vendor/wimg/php-compatibility" />
+    <config name="installed_paths" value="/var/www/html/wp-content/plugins/segment-cache-for-wp-engine/vendor/wp-coding-standards/wpcs,/var/www/html/wp-content/plugins/segment-cache-for-wp-engine/vendor/wimg/php-compatibility" />
     <rule ref="WordPress-Docs"/>
     <rule ref="WordPress-Extra"/>
 

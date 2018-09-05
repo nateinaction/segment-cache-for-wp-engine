@@ -1,7 +1,5 @@
 SHELL := /bin/bash
 
-work_dir = /workspace
-
 plugin_name := segment-cache-for-wp-engine
 
 plugin_dir := /var/www/html/wp-content/plugins/$(plugin_name)/
@@ -19,7 +17,7 @@ all: docker_start lint docker_install_wp docker_test
 
 lint: lint_yaml lint_markdown lint_python lint_php
 
-test: unit smoke
+test: unit install_wp smoke
 
 docker_start:
 	$(docker_compose) up -d --build
@@ -41,28 +39,28 @@ docker_test:
 	$(docker_compose) $(docker_exec) "$(cd_plugin_dir); make test"
 
 lint_php:
-	$(docker_compose) $(docker_exec) "/var/www/.composer/vendor/bin/phpcs --standard=$(plugin_dir)tests/phpcs.xml --warning-severity=8 $(plugin_dir)"
+	$(docker_compose) $(docker_exec) "$(plugin_dir)vendor/bin/phpcs --standard=$(plugin_dir)tests/phpcs.xml --warning-severity=8 $(plugin_dir)"
 
 docker_phpcbf:
-	$(docker_compose) $(docker_exec) "/var/www/.composer/vendor/bin/phpcbf --standard=$(plugin_dir)tests/phpcs.xml $(plugin_dir)"
+	$(docker_compose) $(docker_exec) "$(plugin_dir)vendor/bin/phpcbf --standard=$(plugin_dir)tests/phpcs.xml $(plugin_dir)"
 
 lint_python:
-	$(docker_run_silent) -v `pwd`:$(work_dir) wpengine/pylint:latest "$(work_dir)/tests/smoke/" --errors-only
+	$(docker_run_silent) -v `pwd`:$(plugin_dir) wpengine/pylint:latest "$(plugin_dir)/tests/smoke/" --errors-only
 
 lint_markdown:
 	@# exclude MD013 "line too long"
 	@# exclude MD024 "allow different nesting"
 	@# exclude MD046 "code block style"
-	$(docker_run_silent) -v `pwd`:$(work_dir) wpengine/mdl:latest "$(work_dir)" --rules ~MD013,~MD024,~MD046
+	$(docker_run_silent) -v `pwd`:$(plugin_dir) wpengine/mdl:latest --rules ~MD013,~MD024,~MD046 "$(plugin_dir)/README.md"
 
 lint_yaml:
-	$(docker_run_silent) -v `pwd`:$(work_dir) wpengine/yamllint:latest "$(work_dir)/docker/"
+	$(docker_run_silent) -v `pwd`:$(plugin_dir) wpengine/yamllint:latest "$(plugin_dir)/docker/"
 
 smoke:
 	python3 -m pytest -v -r s "$(plugin_dir)tests/smoke/"
 
 unit:
-	/var/www/.composer/vendor/bin/phpunit -c "$(plugin_dir)tests/phpunit.xml" --testsuite=$(plugin_name)-unit-tests
+	$(plugin_dir)vendor/bin/phpunit -c "$(plugin_dir)tests/phpunit.xml" --testsuite=$(plugin_name)-unit-tests
 
 install_wp: setup_core setup_config setup_db
 
