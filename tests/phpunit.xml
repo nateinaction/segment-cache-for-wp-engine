@@ -3,6 +3,8 @@
         <testsuite name="segment-cache-for-wp-engine-unit-tests">
             <directory suffix="-test.php">unit</directory>
             <exclude>
+                <directory>../docker</directory>
+                <directory>../tests</directory>
                 <directory>../vendor</directory>
             </exclude>
         </testsuite>
@@ -19,6 +21,8 @@
                 processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">../</directory>
             <exclude>
+                <directory>../docker</directory>
+                <directory>../tests</directory>
                 <directory>../vendor</directory>
             </exclude>
         </whitelist>
