@@ -1,0 +1,26 @@
+<phpunit colors="true" bootstrap="bootstrap.php" convertNoticesToExceptions="true">
+    <testsuites>
+        <testsuite name="segment-cache-for-wp-engine-unit-tests">
+            <directory suffix="-test.php">unit</directory>
+            <exclude>
+                <directory>../vendor</directory>
+            </exclude>
+        </testsuite>
+    </testsuites>
+
+    <logging>
+        <log type="coverage-html" target="../artifacts/code_coverage"/>
+        <log type="coverage-clover" target="../artifacts/clover.xml"/>
+    </logging>
+
+    <filter>
+        <whitelist
+                addUncoveredFilesFromWhitelist="true"
+                processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">../</directory>
+            <exclude>
+                <directory>../vendor</directory>
+            </exclude>
+        </whitelist>
+    </filter>
+</phpunit>

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-build_name="segment-cache-wpe"
+build_name="segment-cache-for-wp-engine"
 version=$(grep 'Version:' ${build_name}.php | cut -d' ' -f4)
 zip_name="${build_name}-${version}.zip"
 

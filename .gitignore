@@ -1,4 +1,13 @@
-/.idea/
-/vendor/
+# project
+/artifacts/
 /build/
+/vendor/
 *.zip
+
+# tests
+__pycache__
+.pytest_cache/
+
+# ide
+.idea
+.vscode

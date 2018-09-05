@@ -1,6 +1,6 @@
 {
-    "name": "nategay/segment-cache-for-wp-engine",
-    "description": "WordPress plugin to implement segment caching on WP Engine",
+    "name": "nateinaction/segment-cache-for-wp-engine",
+    "description": "WordPress plugin to implement segment caching shortcodes on WP Engine",
     "type": "project",
     "license": "GPL3+",
     "authors": [
@@ -11,8 +11,8 @@
     ],
     "require": {},
     "autoload": {
-        "psr-4": {
-            "SegmentCacheWPE\\": "./src"
-        }
+        "classmap": [
+            "./src"
+        ]
     }
 }
