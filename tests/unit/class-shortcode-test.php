@@ -109,4 +109,38 @@ class Shortcode_Test extends \WP_UnitTestCase {
 		$result = $shortcode_mock->display_segmented_content( $atts, $content );
 		$this->assertNull( $result );
 	}
+
+	/**
+	 * Test escaping content
+	 */
+	public function test_escape_content() {
+		$shortcode = new Shortcode();
+		$content = '<b>Hello, world!</b>';
+		$escaped_content = '&lt;b&gt;Hello, world!&lt;/b&gt;';
+
+		// Test when no attributes passed.
+		$atts   = array();
+		$result = $shortcode->escape_content( $atts, $content );
+		$this->assertEquals( $result, $escaped_content );
+
+		// Test when no dangerously-set-html attribute passed.
+		$atts   = array( 'foo' => 'bar' );
+		$result = $shortcode->escape_content( $atts, $content );
+		$this->assertEquals( $result, $escaped_content );
+
+		// // Test when dangerously-set-html attribute set to false.
+		$atts   = array( 'dangerously-set-html' => false );
+		$result = $shortcode->escape_content( $atts, $content );
+		$this->assertEquals( $result, $escaped_content );
+
+		// Test when dangerously-set-html attribute set to true.
+		$atts   = array( 'dangerously-set-html' => true );
+		$result = $shortcode->escape_content( $atts, $content );
+		$this->assertEquals( $result, $content );
+
+		// Test when random truthy dangerously-set-html attribute passed.
+		$atts   = array( 'dangerously-set-html' => '123456' );
+		$result = $shortcode->escape_content( $atts, $content );
+		$this->assertEquals( $result, $content );
+	}
 }

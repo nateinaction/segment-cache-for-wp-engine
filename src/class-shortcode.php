@@ -89,7 +89,8 @@ class Shortcode {
 	 */
 	public function should_show_content( $atts = [] ) {
 		$segmentname_set                       = array_key_exists( 'segmentname', $atts );
-		$segmentname_eq_to_header_name         = $segmentname_set && $atts['segmentname'] == $this->header_name;
+		$segmentname = $segmentname_set ? $atts['segmentname'] : null;
+		$segmentname_eq_to_header_name         = $segmentname_set && $segmentname == $this->header_name;
 		$segmentname_and_header_name_are_unset = ! $segmentname_set && ! $this->header_name;
 		return $segmentname_eq_to_header_name || $segmentname_and_header_name_are_unset;
 	}
@@ -105,10 +106,8 @@ class Shortcode {
 	 * @return string Returns content escaped or unescaped
 	 */
 	public function escape_content( $atts = [], $content = '' ) {
-		if ( ! array_key_exists( 'dangerously-set-html', $atts ) && ! $atts['dangerously-set-html'] ) {
-			$content = esc_html( $content );
-		}
-		return $content;
+		$dangerously_set_html = isset($atts['dangerously-set-html']) ? $atts['dangerously-set-html'] : false;
+		return $dangerously_set_html ? $content : esc_html( $content );
 	}
 
 	/**
