@@ -87,16 +87,9 @@ setup_db:
 		--admin_email="test@test.com"
 	$(www_data) wp plugin activate $(plugin_name) $(cli_path) --quiet
 
-set_plugin_version_file:
-	$(www_data) wp plugin get $(plugin_name) --format=json | python3 -c 'import sys, json; print(json.load(sys.stdin)["version"])' > artifacts/version
-
-read_plugin_version_file := $(shell cat artifacts/version)
-
-build_zip:
+build:
 	mkdir -p build/$(plugin_name) artifacts
 	cp -r {$(plugin_name).php,src/,composer.json,composer.lock} build/$(plugin_name)
 	composer install -d build/$(plugin_name) --no-dev
-	cd build/ && zip -r ../artifacts/$(plugin_name)-$(read_plugin_version_file).zip $(plugin_name)
+	cd build/ && sh ../docker/bin/build-zip.sh
 	rm -r build/
-
-build: set_plugin_version_file build_zip
