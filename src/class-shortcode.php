@@ -110,12 +110,12 @@ class Shortcode {
 	 * Sets the 'wpe-us' cookie
 	 *
 	 * @param array $atts Key/value store of shortcode attributes as input from user.
+	 * @return null|bool True if cookie has been set.
 	 */
 	public function set_segment( $atts = [] ) {
 		if ( isset( $atts['segmentname'] ) ) {
 			$atts = $this->validate_set_segment_atts( $atts );
-			setcookie(
-				'wpe-us',
+			return $this->setcookie(
 				$atts['segmentname'],
 				$atts['expire'],
 				$atts['path'],
@@ -124,5 +124,22 @@ class Shortcode {
 				$atts['httponly']
 			);
 		}
+	}
+
+	/**
+	 * Wrapper for setcookie
+	 *
+	 * Wrapping so we can mock in tests to prevent "header already sent" message.
+	 *
+	 * @param string $segment_name The name of segment.
+	 * @param int    $expire The number of seconds until cookie expires.
+	 * @param string $path The path on the site where the segment will be available.
+	 * @param string $domain The subdomain on the site where the segment will be available.
+	 * @param bool   $secure Only set segment if connection is over HTTPS.
+	 * @param bool   $httponly Only set segment if connection is via HTTP protocol.
+	 * @return bool True if cookie has been set.
+	 */
+	public function setcookie( $segment_name, $expire, $path, $domain, $secure, $httponly ) {
+		return setcookie( 'wpe-us', $segment_name, $expire, $path, $domain, $secure, $httponly );
 	}
 }
