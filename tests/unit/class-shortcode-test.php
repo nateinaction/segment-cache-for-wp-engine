@@ -59,12 +59,12 @@ class Shortcode_Test extends \WP_UnitTestCase {
 		$result = $shortcode->set_segment( $atts );
 		$this->assertNull( $result );
 
-		// Test when no segmentname attribute passed.
+		// Test when no segment-name attribute passed.
 		$atts   = array( 'path' => '/blah' );
 		$result = $shortcode->set_segment( $atts );
 		$this->assertNull( $result );
 
-		// Test that validate_set_segment_atts and setcookie are run when valid segmentname passed.
+		// Test that validate_set_segment_atts and setcookie are run when valid segment-name passed.
 		$shortcode_mock = $this->getMockBuilder( '\SegmentCacheWPE\Shortcode' )
 			->disableOriginalConstructor()
 			->setMethods( array( 'validate_set_segment_atts', 'setcookie' ) )
@@ -78,7 +78,7 @@ class Shortcode_Test extends \WP_UnitTestCase {
 			->method( 'setcookie' )
 			->willReturn( true );
 
-		$atts   = array( 'segmentname' => 'blah' );
+		$atts   = array( 'segment-name' => 'blah' );
 		$result = $shortcode_mock->set_segment( $atts );
 		$this->assertTrue( $result );
 	}
@@ -151,38 +151,38 @@ class Shortcode_Test extends \WP_UnitTestCase {
 		$shortcode             = new Shortcode();
 		$shortcode_with_header = new Shortcode( 'foo' );
 
-		// Test when no attributes passed. No segmentname and no header = true.
+		// Test when no attributes passed. No segment-name and no header = true.
 		$atts   = array();
 		$result = $shortcode->should_show_content( $atts );
 		$this->assertTrue( $result );
 
-		// Test when random attributes passed. Random segmentname and no header = true.
+		// Test when random attributes passed. Random segment-name and no header = true.
 		$atts   = array( 'foo' => 'bar' );
 		$result = $shortcode->should_show_content( $atts );
 		$this->assertTrue( $result );
 
-		// Test when random attributes passed. Segmentname but no header = false.
-		$atts   = array( 'segmentname' => 'foo' );
+		// Test when random attributes passed. segment-name but no header = false.
+		$atts   = array( 'segment-name' => 'foo' );
 		$result = $shortcode->should_show_content( $atts );
 		$this->assertFalse( $result );
 
-		// Test with header when no attributes passed. No segmentname but with header = false.
+		// Test with header when no attributes passed. No segment-name but with header = false.
 		$atts   = array();
 		$result = $shortcode_with_header->should_show_content( $atts );
 		$this->assertFalse( $result );
 
-		// Test with header when no attributes passed. Random segmentname and with header = false.
+		// Test with header when no attributes passed. Random segment-name and with header = false.
 		$atts   = array( 'foo' => 'bar' );
 		$result = $shortcode_with_header->should_show_content( $atts );
 		$this->assertFalse( $result );
 
-		// Test with header when incorrect segmentname passed.
-		$atts   = array( 'segmentname' => 'bar' );
+		// Test with header when incorrect segment-name passed.
+		$atts   = array( 'segment-name' => 'bar' );
 		$result = $shortcode_with_header->should_show_content( $atts );
 		$this->assertFalse( $result );
 
-		// Test with header when correct segmentname passed.
-		$atts   = array( 'segmentname' => 'foo' );
+		// Test with header when correct segment-name passed.
+		$atts   = array( 'segment-name' => 'foo' );
 		$result = $shortcode_with_header->should_show_content( $atts );
 		$this->assertTrue( $result );
 	}

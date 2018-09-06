@@ -33,7 +33,7 @@ class Shortcode {
 	 * @var array
 	 */
 	public $default_set_segment_atts = array(
-		'segmentname' => 'default_segment_name',
+		'segment-name' => 'default_segment_name',
 		'expire'      => 0,
 		'path'        => '/',
 		'domain'      => '',
@@ -88,11 +88,11 @@ class Shortcode {
 	 * @return string Return content when on the requested segment
 	 */
 	public function should_show_content( $atts = [] ) {
-		$segmentname_set                       = isset( $atts['segmentname'] );
-		$segmentname                           = $segmentname_set ? $atts['segmentname'] : null;
-		$segmentname_eq_to_header_name         = $segmentname_set && $segmentname == $this->header_name;
-		$segmentname_and_header_name_are_unset = ! $segmentname_set && ! $this->header_name;
-		return $segmentname_eq_to_header_name || $segmentname_and_header_name_are_unset;
+		$segment_name_set                       = isset( $atts['segment-name'] );
+		$segment_name                           = $segment_name_set ? $atts['segment-name'] : null;
+		$segment_name_eq_to_header_name         = $segment_name_set && $segment_name == $this->header_name;
+		$segment_name_and_header_name_are_unset = ! $segment_name_set && ! $this->header_name;
+		return $segment_name_eq_to_header_name || $segment_name_and_header_name_are_unset;
 	}
 
 	/**
@@ -137,10 +137,10 @@ class Shortcode {
 	 * @return null|bool True if cookie has been set.
 	 */
 	public function set_segment( $atts = [] ) {
-		if ( isset( $atts['segmentname'] ) ) {
+		if ( isset( $atts['segment-name'] ) ) {
 			$atts = $this->validate_set_segment_atts( $atts );
 			return $this->setcookie(
-				$atts['segmentname'],
+				$atts['segment-name'],
 				$atts['expire'],
 				$atts['path'],
 				$atts['domain'],

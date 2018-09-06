@@ -11,19 +11,19 @@ Help your site convert visitors into subscribers by serving content specific to 
 1. When you know a visitor is a specific type of user (i.e. developer, marketer, enterprise, etc.) use the `segment-cache-set` shortcode remember who they are.
 
     ```text
-    [segment-cache-set segmentname="developer"]
+    [segment-cache-set segment-name="developer"]
     ```
 
 2. Serve content specific to that type of user by using the `segment-cache-display` shortcode.
 
     ```text
-    [segment-cache-display segmentname="developer"]
+    [segment-cache-display segment-name="developer"]
         This content is for developers only.
     [/segment-cache-display]
     ```
 
     ```text
-    [segment-cache-display segmentname="marketer"]
+    [segment-cache-display segment-name="marketer"]
         This content is for marketers only.
     [/segment-cache-display]
     ```
@@ -40,7 +40,7 @@ Help your site convert visitors into subscribers by serving content specific to 
 
 These options mirror those found in the [official PHP docs](http://php.net/manual/en/function.setcookie.php) for `setcookie`.
 
-- `segmentname`: [string] The name of segment. (required)
+- `segment-name`: [string] The name of segment. (required)
 - `expire`: [int] The number of seconds until cookie expires. (default: 31536000 i.e. 1 year)
 - `path`: [string] The path on the site where the segment will be available. (default: "/")
 - `domain`: [string] The subdomain on the site where the segment will be available. (default: "")
@@ -49,7 +49,7 @@ These options mirror those found in the [official PHP docs](http://php.net/manua
 
 ### `segment-cache-display`
 
-- `segmentname`: [string] The name of segment. (Tip: Omitting this option will show content only to visitors who haven't had their segment set.)
+- `segment-name`: [string] The name of segment. (Tip: Omitting this option will show content only to visitors who haven't had their segment set.)
 - `dangerously-set-html`: [bool] Allow rendering of HTML in content. (default: false)
 
 ## Technical details
