@@ -67,23 +67,48 @@ class Shortcode {
 	 *
 	 * Shows or hides content based on the value of the X-WPENGINE-SEGMENT header
 	 *
-	 * @param array       $atts Key/value store of shortcode attributes.
-	 * @param null|string $content Content within the opening/closing shortcode tags.
+	 * @param array  $atts Key/value store of shortcode attributes.
+	 * @param string $content Content within the opening/closing shortcode tags.
 	 *
-	 * @return null|string Return content when on the requested segment
+	 * @return string Return content when on the requested segment
 	 */
-	public function display_segmented_content( $atts = [], $content = null ) {
-		// Escape the content.
-		if ( ! isset( $atts['dangerously-set-html'] ) && ! $atts['dangerously-set-html'] ) {
+	public function display_segmented_content( $atts = [], $content = '' ) {
+		$content = $this->escape_content( $atts, $content );
+		return $this->should_show_content( $atts ) ? $content : null;
+	}
+
+	/**
+	 * Should Show Content
+	 *
+	 * Determines whether content should be hidden or shown.
+	 * Content should only be shown if the segment name and header name are the same or if both are unset.
+	 *
+	 * @param array $atts Key/value store of shortcode attributes.
+	 *
+	 * @return string Return content when on the requested segment
+	 */
+	public function should_show_content( $atts = [] ) {
+		$segmentname_set                       = array_key_exists( 'segmentname', $atts );
+		$segmentname_eq_to_header_name         = $segmentname_set && $atts['segmentname'] == $this->header_name;
+		$segmentname_and_header_name_are_unset = ! $segmentname_set && ! $this->header_name;
+		return $segmentname_eq_to_header_name || $segmentname_and_header_name_are_unset;
+	}
+
+	/**
+	 * Escape content
+	 *
+	 * Escapes content unless "dangerously-set-html" or "dangerously-set-html => true" are passed to shortcode
+	 *
+	 * @param array  $atts Key/value store of shortcode attributes.
+	 * @param string $content Content within the opening/closing shortcode tags.
+	 *
+	 * @return string Returns content escaped or unescaped
+	 */
+	public function escape_content( $atts = [], $content = '' ) {
+		if ( ! array_key_exists( 'dangerously-set-html', $atts ) && ! $atts['dangerously-set-html'] ) {
 			$content = esc_html( $content );
 		}
-
-		if ( isset( $atts['segmentname'] ) && $atts['segmentname'] == $this->header_name ) {
-			return $content;
-		} elseif ( ! isset( $atts['segmentname'] ) && ! $this->header_name ) {
-			return $content;
-		}
-		return null;
+		return $content;
 	}
 
 	/**

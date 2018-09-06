@@ -82,4 +82,31 @@ class Shortcode_Test extends \WP_UnitTestCase {
 		$result = $shortcode_mock->set_segment( $atts );
 		$this->assertTrue( $result );
 	}
+
+	/**
+	 * Test display segmented content
+	 */
+	public function test_display_segmented_content() {
+		$atts    = array();
+		$content = 'Hello, world!';
+
+		$shortcode_mock = $this->getMockBuilder( '\SegmentCacheWPE\Shortcode' )
+			->disableOriginalConstructor()
+			->setMethods( array( 'escape_content', 'should_show_content' ) )
+			->getMock();
+
+		$shortcode_mock->expects( $this->exactly( 2 ) )
+			->method( 'escape_content' )
+			->willReturn( $content );
+
+		$shortcode_mock->expects( $this->exactly( 2 ) )
+			->method( 'should_show_content' )
+			->will( $this->onConsecutiveCalls( true, false ) );
+
+		$result = $shortcode_mock->display_segmented_content( $atts, $content );
+		$this->assertEquals( $result, $content );
+
+		$result = $shortcode_mock->display_segmented_content( $atts, $content );
+		$this->assertNull( $result );
+	}
 }
