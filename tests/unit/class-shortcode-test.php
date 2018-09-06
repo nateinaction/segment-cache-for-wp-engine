@@ -114,8 +114,8 @@ class Shortcode_Test extends \WP_UnitTestCase {
 	 * Test escaping content
 	 */
 	public function test_escape_content() {
-		$shortcode = new Shortcode();
-		$content = '<b>Hello, world!</b>';
+		$shortcode       = new Shortcode();
+		$content         = '<b>Hello, world!</b>';
 		$escaped_content = '&lt;b&gt;Hello, world!&lt;/b&gt;';
 
 		// Test when no attributes passed.
@@ -142,5 +142,48 @@ class Shortcode_Test extends \WP_UnitTestCase {
 		$atts   = array( 'dangerously-set-html' => '123456' );
 		$result = $shortcode->escape_content( $atts, $content );
 		$this->assertEquals( $result, $content );
+	}
+
+	/**
+	 * Test should show content
+	 */
+	public function test_should_show_content() {
+		$shortcode             = new Shortcode();
+		$shortcode_with_header = new Shortcode( 'foo' );
+
+		// Test when no attributes passed. No segmentname and no header = true.
+		$atts   = array();
+		$result = $shortcode->should_show_content( $atts );
+		$this->assertTrue( $result );
+
+		// Test when random attributes passed. Random segmentname and no header = true.
+		$atts   = array( 'foo' => 'bar' );
+		$result = $shortcode->should_show_content( $atts );
+		$this->assertTrue( $result );
+
+		// Test when random attributes passed. Segmentname but no header = false.
+		$atts   = array( 'segmentname' => 'foo' );
+		$result = $shortcode->should_show_content( $atts );
+		$this->assertFalse( $result );
+
+		// Test with header when no attributes passed. No segmentname but with header = false.
+		$atts   = array();
+		$result = $shortcode_with_header->should_show_content( $atts );
+		$this->assertFalse( $result );
+
+		// Test with header when no attributes passed. Random segmentname and with header = false.
+		$atts   = array( 'foo' => 'bar' );
+		$result = $shortcode_with_header->should_show_content( $atts );
+		$this->assertFalse( $result );
+
+		// Test with header when incorrect segmentname passed.
+		$atts   = array( 'segmentname' => 'bar' );
+		$result = $shortcode_with_header->should_show_content( $atts );
+		$this->assertFalse( $result );
+
+		// Test with header when correct segmentname passed.
+		$atts   = array( 'segmentname' => 'foo' );
+		$result = $shortcode_with_header->should_show_content( $atts );
+		$this->assertTrue( $result );
 	}
 }
