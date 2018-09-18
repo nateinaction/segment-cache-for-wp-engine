@@ -70,11 +70,11 @@ class Shortcode_Test extends \WP_UnitTestCase {
 			->setMethods( array( 'validate_set_segment_atts', 'setcookie' ) )
 			->getMock();
 
-		$shortcode_mock->expects( $this->exactly( 1 ) )
+		$shortcode_mock->expects( $this->once() )
 			->method( 'validate_set_segment_atts' )
 			->willReturn( null );
 
-		$shortcode_mock->expects( $this->exactly( 1 ) )
+		$shortcode_mock->expects( $this->once() )
 			->method( 'setcookie' )
 			->willReturn( true );
 

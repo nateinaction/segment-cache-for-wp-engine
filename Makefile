@@ -80,12 +80,22 @@ setup_config:
 setup_db:
 	$(www_data) wp db reset $(cli_path) --yes
 	$(www_data) wp core install $(cli_path) --skip-email \
-		--url="http://localhost:8080" \
+		--url="http://localhost" \
 		--title="Test" \
 		--admin_user="test" \
 		--admin_password="test" \
 		--admin_email="test@test.com"
 	$(www_data) wp plugin activate $(plugin_name) $(cli_path) --quiet
+
+load_test_content:
+	$(www_data) wp plugin install wordpress-importer --activate
+	$(www_data) wp import docker/bin/test-post-content.xml --authors=skip
+
+place_test_mu_plugin:
+	cp docker/bin/test-server-var-set.php /var/www/html/wp-content/mu-plugins
+
+remove_test_mu_plugin:
+	rm -rf /var/www/html/wp-content/mu-plugins/test-server-var-set.php
 
 build:
 	mkdir -p build/$(plugin_name) artifacts
