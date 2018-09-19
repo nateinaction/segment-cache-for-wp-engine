@@ -35,7 +35,7 @@
 	<wp:base_site_url>http://localhost</wp:base_site_url>
 	<wp:base_blog_url>http://localhost</wp:base_blog_url>
 
-	<wp:author><wp:author_id>1</wp:author_id><wp:author_login><![CDATA[wpengine]]></wp:author_login><wp:author_email><![CDATA[bitbucket@wpengine.com]]></wp:author_email><wp:author_display_name><![CDATA[wpengine]]></wp:author_display_name><wp:author_first_name><![CDATA[]]></wp:author_first_name><wp:author_last_name><![CDATA[]]></wp:author_last_name></wp:author>
+	<wp:author><wp:author_id>1</wp:author_id><wp:author_login><![CDATA[smoketest]]></wp:author_login><wp:author_email><![CDATA[smoketest@nategay.me]]></wp:author_email><wp:author_display_name><![CDATA[smoketest]]></wp:author_display_name><wp:author_first_name><![CDATA[]]></wp:author_first_name><wp:author_last_name><![CDATA[]]></wp:author_last_name></wp:author>
 
 
 	<generator>https://wordpress.org/?v=4.9.8</generator>
@@ -44,7 +44,7 @@
 		<title>Segment Cache Test</title>
 		<link>http://localhost/?p=5</link>
 		<pubDate>Tue, 18 Sep 2018 01:47:21 +0000</pubDate>
-		<dc:creator><![CDATA[wpengine]]></dc:creator>
+		<dc:creator><![CDATA[nateinaction]]></dc:creator>
 		<guid isPermaLink="false">http://localhost/?p=5</guid>
 		<description></description>
 		<content:encoded><![CDATA[[segment-cache-set segment-name="smoketest"]

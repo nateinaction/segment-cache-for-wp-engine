@@ -42,13 +42,13 @@ docker_test:
 	$(docker_compose) $(docker_exec) "$(cd_plugin_dir); make test"
 
 lint_php:
-	$(docker_compose) $(docker_exec) "$(plugin_dir)vendor/bin/phpcs --standard=$(plugin_dir)tests/phpcs.xml --warning-severity=8 $(plugin_dir)"
+	$(docker_compose) $(docker_exec) "$(plugin_dir)vendor/bin/phpcs --standard=$(plugin_dir)test/phpcs.xml --warning-severity=8 $(plugin_dir)"
 
 docker_phpcbf:
-	$(docker_compose) $(docker_exec) "$(plugin_dir)vendor/bin/phpcbf --standard=$(plugin_dir)tests/phpcs.xml $(plugin_dir)"
+	$(docker_compose) $(docker_exec) "$(plugin_dir)vendor/bin/phpcbf --standard=$(plugin_dir)test/phpcs.xml $(plugin_dir)"
 
 lint_python:
-	$(docker_run_silent) -v `pwd`:$(plugin_dir) wpengine/pylint:latest "$(plugin_dir)/tests/smoke/" --errors-only
+	$(docker_run_silent) -v `pwd`:$(plugin_dir) wpengine/pylint:latest "$(plugin_dir)/test/smoke/" --errors-only
 
 lint_markdown:
 	@# exclude MD013 "line too long"
@@ -60,10 +60,10 @@ lint_yaml:
 	$(docker_run_silent) -v `pwd`:$(plugin_dir) wpengine/yamllint:latest "$(plugin_dir)/docker/"
 
 smoke:
-	python3 -m pytest -v -r s "$(plugin_dir)tests/smoke/"
+	python3 -m pytest -v -r s "$(plugin_dir)test/smoke/"
 
 unit:
-	$(plugin_dir)vendor/bin/phpunit -c "$(plugin_dir)tests/phpunit.xml" --testsuite=$(plugin_name)-unit-tests
+	$(plugin_dir)vendor/bin/phpunit -c "$(plugin_dir)test/phpunit.xml" --testsuite=$(plugin_name)-unit-tests
 
 install_wp: setup_core setup_config setup_db
 
@@ -89,10 +89,10 @@ setup_db:
 
 load_test_content:
 	$(www_data) wp plugin install wordpress-importer --activate
-	$(www_data) wp import docker/bin/test-post-content.xml --authors=skip
+	$(www_data) wp import $(plugin_dir)test/files/test-post-content.xml --authors=skip
 
 place_test_mu_plugin:
-	cp docker/bin/test-server-var-set.php /var/www/html/wp-content/mu-plugins
+	cp $(plugin_dir)test/files/test-server-var-set.php /var/www/html/wp-content/mu-plugins
 
 remove_test_mu_plugin:
 	rm -rf /var/www/html/wp-content/mu-plugins/test-server-var-set.php

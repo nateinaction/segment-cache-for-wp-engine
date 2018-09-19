@@ -4,7 +4,7 @@
             <directory suffix="-test.php">unit</directory>
             <exclude>
                 <directory>../docker</directory>
-                <directory>../tests</directory>
+                <directory>../test</directory>
                 <directory>../vendor</directory>
             </exclude>
         </testsuite>
@@ -37,7 +37,7 @@
             <directory suffix=".php">../</directory>
             <exclude>
                 <directory>../docker</directory>
-                <directory>../tests</directory>
+                <directory>../test</directory>
                 <directory>../vendor</directory>
             </exclude>
         </whitelist>

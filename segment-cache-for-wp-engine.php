@@ -25,5 +25,6 @@ if ( isset( $_SERVER['HTTP_X_WPENGINE_SEGMENT'] ) ) {
 	$segment_cache_wpe_header_name = $_SERVER['HTTP_X_WPENGINE_SEGMENT'];
 }
 
-new SendVaryHeader( $segment_cache_wpe_header_name );
-new Shortcode( $segment_cache_wpe_header_name );
+new Send_Vary_Header( $segment_cache_wpe_header_name );
+new Shortcode\Set_Segment( $segment_cache_wpe_header_name );
+new Shortcode\Display_Segment( $segment_cache_wpe_header_name );
