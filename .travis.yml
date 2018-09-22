@@ -1,23 +1,18 @@
 sudo: required
 
-language: php
-php:
-  - '7.0'
-
 services:
   - docker
 
 jobs:
   include:
+    - stage: "Build and Setup Docker"
+      script: make docker_start
+      script: make docker_install_wp
     - stage: "Lint"
       script: make lint_yaml
       script: make lint_markdown
       script: make lint_python
-      script: composer install
-      script: ./vendor/bin/phpcs --standard=./test/phpcs.xml --warning-severity=8 .
-    - stage: "Build and Setup Docker"
-      script: make docker_start
-      script: make docker_install_wp
+      script: make lint_php
     - stage: "Unit Test"
       script: make docker_unit
     - stage: "Smoke Test"
