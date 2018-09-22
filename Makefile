@@ -41,6 +41,12 @@ docker_install_wp:
 docker_test:
 	$(docker_compose) $(docker_exec) "$(cd_plugin_dir); make test"
 
+docker_unit:
+	$(docker_compose) $(docker_exec) "$(cd_plugin_dir); make unit"
+
+docker_smoke:
+	$(docker_compose) $(docker_exec) "$(cd_plugin_dir); make smoke"
+
 lint_php:
 	$(docker_compose) $(docker_exec) "$(plugin_dir)vendor/bin/phpcs --standard=$(plugin_dir)test/phpcs.xml --warning-severity=8 $(plugin_dir)"
 

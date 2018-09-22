@@ -1,0 +1,20 @@
+sudo: required
+
+language: php
+
+services:
+  - docker
+
+jobs:
+  include:
+    - stage: "Lint"
+      script: make lint
+    - stage: "Build and Setup Docker"
+      script: make docker_start
+      script: make docker_install_wp
+    - stage: "Unit Test"
+      script: make docker_unit
+    - stage: "Smoke Test"
+      script: make docker_smoke
+    - stage: "Package Zip"
+      script: make docker_build
