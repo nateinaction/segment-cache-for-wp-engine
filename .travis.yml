@@ -1,0 +1,51 @@
+sudo: false
+language: php
+php:
+  - '7.2'
+  - '7.0'
+
+services:
+  - mysql
+
+matrix:
+  fast_finish: true
+
+cache:
+  apt: true
+  directories:
+    - $HOME/.composer/cache
+    - vendor
+
+env:
+  global:
+    - PLUGIN_NAME="segment-cache-for-wp-engine"
+    - WORDPRESS_VERSION="latest"
+    - WORDPRESS_DB_NAME="wordpress"
+    - WORDPRESS_DB_USER="wordpress"
+    - WORDPRESS_DB_PASSWORD="password"
+    - WORDPRESS_DB_HOST="localhost"
+    - WORDPRESS_DIR="/tmp/wordpress"
+    - WORDPRESS_TEST_HARNESS_DIR="/tmp/wordpress-test-harness"
+    - BIN_DIR="$HOME/bin"
+    - CC_TEST_REPORTER_ID="2d773f8f5f842d9c9c908bee57904e8d1d7213ec1d023c9bf8773e4a56f78318"
+
+before_install:
+  - make composer_self_update
+  # Setup WP DB
+  - mysql -e "CREATE DATABASE $WORDPRESS_DB_NAME;" -uroot
+  - mysql -e "GRANT ALL PRIVILEGES ON *.* TO '${WORDPRESS_DB_USER}'@'${WORDPRESS_DB_HOST}' IDENTIFIED BY '${WORDPRESS_DB_PASSWORD}';"
+
+install:
+  - make install
+
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
+
+script:
+  - make lint
+  - make test
+
+after_script:
+  - ./cc-test-reporter after-build -t clover --exit-code $TRAVIS_TEST_RESULT

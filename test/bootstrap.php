@@ -5,7 +5,7 @@
  * @package segment-cache-for-wp-engine
  */
 
-$_tests_dir = '/tmp/wordpress-tests-lib';
+$_tests_dir = '/tmp/wordpress-test-harness';
 
 /**
  * The WordPress tests functions.
@@ -25,7 +25,7 @@ require_once $_tests_dir . '/includes/functions.php';
  * loading your plugin, since it won't be installed.
  */
 function _manually_load_plugin() {
-	require '/var/www/html/wp-content/plugins/segment-cache-for-wp-engine/segment-cache-for-wp-engine.php';
+	require __DIR__ . '/../segment-cache-for-wp-engine.php';
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 

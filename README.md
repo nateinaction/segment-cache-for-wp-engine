@@ -1,4 +1,5 @@
 # Segment Cache for WP Engine
+[![Build Status](https://travis-ci.org/nateinaction/segment-cache-for-wp-engine.svg?branch=master)](https://travis-ci.org/nateinaction/segment-cache-for-wp-engine) [![Maintainability](https://api.codeclimate.com/v1/badges/5bb317ca377fec035d23/maintainability)](https://codeclimate.com/github/nateinaction/segment-cache-for-wp-engine/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/5bb317ca377fec035d23/test_coverage)](https://codeclimate.com/github/nateinaction/segment-cache-for-wp-engine/test_coverage)
 
 A WordPress plugin to enable segmented content caching via shortcode
 
