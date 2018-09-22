@@ -18,36 +18,46 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Add a WordPress shortcode to set a cache segment
  */
 class Set_Segment {
-
-	/**
-	 * Name of header to segment on
-	 *
-	 * @var string
-	 */
-	private $header_name;
-
 	/**
 	 * Default attributes for set_segment shortcode
 	 *
 	 * @var array
 	 */
-	public $default_set_segment_atts = array(
-		'segment-name' => 'default_segment_name',
-		'expire'       => 0,
-		'path'         => '/',
-		'domain'       => '',
-		'secure'       => false,
-		'httponly'     => false,
+	public $default_atts = array(
+		'wpe-us'   => 'default',
+		'path'     => '/',
+		'max-age'  => '31536000',
+		'secure'   => 'false',
+		'samesite' => 'lax',
 	);
 
 	/**
-	 * Constructor
+	 * All valid attributes for set_segment shortcode
+	 * https://developer.mozilla.org/en-US/docs/Web/API/Document/cookie
 	 *
-	 * @param null|string $header_name Name of header to segment on.
+	 * @var array
 	 */
-	public function __construct( $header_name = null ) {
-		$this->header_name                        = $header_name;
-		$this->default_set_segment_atts['expire'] = time() + 60 * 60 * 24 * 365;
+	public $valid_atts = array(
+		'wpe-us',
+		'path',
+		'domain',
+		'max-age',
+		'expire',
+		'secure',
+		'samesite',
+	);
+
+	/**
+	 * Cookie string
+	 *
+	 * @var string
+	 */
+	public $cookie_string = 'wpe-us=default';
+
+	/**
+	 * Constructor
+	 */
+	public function __construct() {
 		$this->add_shortcode();
 	}
 
@@ -61,24 +71,17 @@ class Set_Segment {
 	/**
 	 * Set Segment
 	 *
-	 * Sets the 'wpe-us' cookie
+	 * This function acts as a factory and orchestrates all cookie setting actions after shortcode is invoked
 	 *
 	 * @param array $atts Key/value store of shortcode attributes as input from user.
-	 * @return null|bool True if cookie has been set.
 	 */
 	public function set_segment( $atts = [] ) {
 		if ( isset( $atts['segment-name'] ) ) {
-			$atts = $this->validate_set_segment_atts( $atts );
-			return $this->setcookie(
-				$atts['segment-name'],
-				$atts['expire'],
-				$atts['path'],
-				$atts['domain'],
-				$atts['secure'],
-				$atts['httponly']
-			);
+			$atts['wpe-us']      = $atts['segment-name'];
+			$atts                = $this->validate_atts( $atts );
+			$this->cookie_string = $this->atts_to_cookie_string( $atts );
+			$this->add_to_footer();
 		}
-		return null;
 	}
 
 	/**
@@ -89,30 +92,50 @@ class Set_Segment {
 	 * @param array $atts Key/value store of shortcode attributes as input from user.
 	 * @return array $atts Key/value store of valid attributes to be used by setcookie.
 	 */
-	public function validate_set_segment_atts( $atts = [] ) {
-		$valid_atts = $this->default_set_segment_atts;
-		foreach ( $valid_atts as $key => $value ) {
+	public function validate_atts( $atts = [] ) {
+		$validated_atts = $this->default_atts;
+		foreach ( $this->valid_atts as $key ) {
 			if ( array_key_exists( $key, $atts ) ) {
-				$valid_atts[ $key ] = esc_html( $atts[ $key ] );
+				$validated_atts[ $key ] = esc_html( $atts[ $key ] );
 			}
 		}
-		return $valid_atts;
+		return $validated_atts;
 	}
 
 	/**
-	 * Wrapper for setcookie
+	 * Convert atts array to javascript cookie param string
 	 *
-	 * Wrapping so we can mock in tests to prevent "header already sent" message.
-	 *
-	 * @param string $segment_name The name of segment.
-	 * @param int    $expire The number of seconds until cookie expires.
-	 * @param string $path The path on the site where the segment will be available.
-	 * @param string $domain The subdomain on the site where the segment will be available.
-	 * @param bool   $secure Only set segment if connection is over HTTPS.
-	 * @param bool   $httponly Only set segment if connection is via HTTP protocol.
-	 * @return bool True if cookie has been set.
+	 * @param array $atts Key/value store of valid attributes.
+	 * @return string Javascript cookie param string
 	 */
-	public function setcookie( $segment_name, $expire, $path, $domain, $secure, $httponly ) {
-		return setcookie( 'wpe-us', $segment_name, $expire, $path, $domain, $secure, $httponly );
+	public function atts_to_cookie_string( $atts = [] ) {
+		return implode(
+			';', array_map(
+				function ( $val, $key ) {
+					return "{$key}={$val}";
+				},
+				$atts,
+				array_keys( $atts )
+			)
+		);
+	}
+
+	/**
+	 * Hook WordPress to add the inline JS cookie setter to the footer
+	 */
+	public function add_to_footer() {
+		add_action( 'wp_footer', array( $this, 'set_cookie' ) );
+	}
+
+	/**
+	 * Set cookie via inline js
+	 *
+	 * Enqueue and localize are great options but I could not bring myself to
+	 * add an extra http request for a one line js file so this is inline.
+	 */
+	public function set_cookie() {
+		echo '<script type="text/javascript">';
+		echo 'document.cookie = "' . esc_attr( $this->cookie_string ) . '";';
+		echo '</script>';
 	}
 }

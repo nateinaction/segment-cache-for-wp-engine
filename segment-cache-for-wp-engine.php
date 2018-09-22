@@ -20,11 +20,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require __DIR__ . '/vendor/autoload.php';
 
-$segment_cache_wpe_header_name = null;
-if ( isset( $_SERVER['HTTP_X_WPENGINE_SEGMENT'] ) ) {
-	$segment_cache_wpe_header_name = $_SERVER['HTTP_X_WPENGINE_SEGMENT'];
+/**
+ * Get name of the cache segment
+ *
+ * @return null|string Value of 'HTTP_X_WPENGINE_SEGMENT' server var
+ */
+function get_segment_name() {
+	$segment_name = null;
+	if ( isset( $_SERVER['HTTP_X_WPENGINE_SEGMENT'] ) ) {
+		$segment_name = $_SERVER['HTTP_X_WPENGINE_SEGMENT'];
+	}
+	return $segment_name;
 }
+$segment_name = get_segment_name();
 
-new Send_Vary_Header( $segment_cache_wpe_header_name );
-new Shortcode\Set_Segment( $segment_cache_wpe_header_name );
-new Shortcode\Display_Segment( $segment_cache_wpe_header_name );
+new Send_Vary_Header( $segment_name );
+new Shortcode\Display_Segment( $segment_name );
+new Shortcode\Set_Segment();

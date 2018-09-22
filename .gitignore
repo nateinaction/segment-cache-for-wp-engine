@@ -11,3 +11,6 @@ __pycache__
 # ide
 .idea
 .vscode
+
+# misc
+.DS_Store

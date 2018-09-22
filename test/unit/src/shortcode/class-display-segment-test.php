@@ -11,6 +11,14 @@ namespace SegmentCacheWPE\Shortcode;
  * Unit tests for DisplaySegment shortcode class
  */
 class DisplaySegment_Test extends \WP_UnitTestCase {
+	/**
+	 * Ensure shortcode is added when class is initialized
+	 */
+	public function test_shortcode_added_on_init() {
+		new Display_Segment();
+		$shortcode_exists = shortcode_exists( 'segment-cache-display' );
+		$this->assertTrue( $shortcode_exists );
+	}
 
 	/**
 	 * Test display segmented content

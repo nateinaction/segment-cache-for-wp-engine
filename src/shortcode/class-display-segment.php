@@ -29,10 +29,10 @@ class Display_Segment {
 	/**
 	 * Constructor
 	 *
-	 * @param null|string $header_name Name of header to segment on.
+	 * @param null|string $segment_name Name of header to segment on.
 	 */
-	public function __construct( $header_name = null ) {
-		$this->header_name = $header_name;
+	public function __construct( $segment_name = null ) {
+		$this->header_name = $segment_name;
 		$this->add_shortcode();
 	}
 

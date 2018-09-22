@@ -38,18 +38,19 @@ Help your site convert visitors into subscribers by serving content specific to 
 
 ### `segment-cache-set`
 
-These options mirror those found in the [official PHP docs](http://php.net/manual/en/function.setcookie.php) for `setcookie`.
+These options mirror those found in the [Mozilla docs](https://developer.mozilla.org/en-US/docs/Web/API/Document/cookie) for `document.cookie`.
 
-- `segment-name`: [string] The name of segment. (required)
-- `expire`: [int] The number of seconds until cookie expires. (default: 31536000 i.e. 1 year)
-- `path`: [string] The path on the site where the segment will be available. (default: "/")
-- `domain`: [string] The subdomain on the site where the segment will be available. (default: "")
+- `segment-name`: [string] Name of segment. (required)
+- `path`: [string] Path on the site where the segment will be available. (default: "/")
+- `domain`: [string] Subdomain on the site where the segment will be available. (default not set)
+- `max-age`: [int] Number of seconds until cookie expires. (default: 31536000 i.e. 1 year)
+- `expire`: [string] Sets the date in GMT string format when segment should expire. (default not set)
 - `secure`: [bool] Only set segment if connection is over HTTPS. (default: false)
-- `httponly`: [bool] Only set segment if connection is via HTTP protocol. (default: false)
+- `samesite`: [string] Allow segment cookie to be read cross-site. (default: lax)
 
 ### `segment-cache-display`
 
-- `segment-name`: [string] The name of segment. (Tip: Omitting this option will show content only to visitors who haven't had their segment set.)
+- `segment-name`: [string] Name of segment. (Tip: Omitting this option will show content only to visitors who haven't had their segment set.)
 - `dangerously-set-html`: [bool] Allow rendering of HTML in content. (default: false)
 
 ## Technical details
@@ -67,8 +68,8 @@ Are you a developer? You don't need a plugin to enable this feature. Start using
     ```php
     header("Vary: X-WPENGINE-SEGMENT");
 
-    $header_name = $_SERVER["HTTP_X_WPENGINE_SEGMENT"];
-    if ($header_name == "developer") {
+    $segment_name = $_SERVER["HTTP_X_WPENGINE_SEGMENT"];
+    if ($segment_name == "developer") {
         echo "Hello dev!";
     } else {
         echo "Hello world!";

@@ -20,22 +20,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Send_Vary_Header {
 
 	/**
-	 * Name of header to segment on
+	 * Name of the segment
 	 *
 	 * @var null|string
 	 */
-	private $header_name;
+	private $segment_name;
 
 	/**
 	 * Constructor
 	 *
-	 * @param null|string $header_name Name of header to segment on.
+	 * @param null|string $segment_name Name of header to segment on.
 	 */
-	public function __construct( $header_name = null ) {
-		$this->header_name = $header_name;
+	public function __construct( $segment_name = null ) {
+		$this->segment_name = $segment_name;
 
-		// send vary header in response when segment request header is present.
-		if ( $this->header_name ) {
+		// Send vary header in response when segment request header is present.
+		if ( $this->segment_name ) {
 			$this->add_action();
 		}
 	}

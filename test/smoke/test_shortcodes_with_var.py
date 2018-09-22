@@ -1,5 +1,5 @@
 """
-Test to see if Segment Cache for WP Engine plugin sends cookie in response
+Test shortcodes when $_SERVER['HTTP_X_WPENGINE_SEGMENT'] is 'smoketest'
 """
 import subprocess
 import unittest
