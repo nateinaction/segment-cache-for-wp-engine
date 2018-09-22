@@ -13,7 +13,7 @@ www_data := @sudo -u www-data
 cli_skip := --skip-themes --skip-plugins
 cli_path := --path="/var/www/html/"
 
-all: lint docker_start docker_install_wp docker_test docker_build
+all: docker_start lint docker_install_wp docker_test docker_build
 
 shell:
 	$(docker_compose) $(docker_exec) "$(cd_plugin_dir); /bin/bash"
