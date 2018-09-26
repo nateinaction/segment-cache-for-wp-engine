@@ -33,7 +33,7 @@ before_install:
 - mkdir -p ${WORDPRESS_TEST_HARNESS}
 - mysql -e "create database IF NOT EXISTS $WORDPRESS_DB_NAME;" -uroot
 # Install wp test harness
-- ./docker/bin/install-wp-tests.sh wordpress wordpress password mysql latest true
+- sh ./docker/bin/install-wp-tests.sh wordpress wordpress password mysql latest true
 # Install wp-cli
 - mkdir -p tools
 - wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -P $(pwd)/tools/
