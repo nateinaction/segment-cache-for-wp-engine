@@ -21,8 +21,8 @@ cache:
 env:
   global:
     - WORDPRESS_DB_NAME="wordpress"
-    - WORDPRESS_DB_USER="wordpress"
-    - WORDPRESS_DB_PASSWORD="password"
+    - WORDPRESS_DB_USER="root"
+    - WORDPRESS_DB_PASSWORD=""
     - WORDPRESS_DB_HOST="127.0.0.1"
     - WORDPRESS_DIR="/tmp/wordpress"
     - WORDPRESS_TEST_HARNESS="/tmp/wordpress-tests-lib"
