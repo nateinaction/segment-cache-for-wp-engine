@@ -37,16 +37,16 @@ before_install:
 # Install wp-cli
 - mkdir -p tools
 - wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -P $(pwd)/tools/
-- chmod +x tools/wp-cli.phar && ln -s tools/wp-cli.phar tools/wp
+- chmod +x tools/wp-cli.phar
 - export PATH=$PATH:$(pwd)/tools
 - export PATH=vendor/bin:$PATH
 
 install:
 - composer install -o --prefer-dist --no-interaction
 # Install WP
-- wp core download --path="${WORDPRESS_DIR}"
-- wp config create --path="${WORDPRESS_DIR}" --force --dbname="${WORDPRESS_DB_NAME}" --dbuser="${WORDPRESS_DB_USER}" --dbpass="${WORDPRESS_DB_PASSWORD}" --dbhost="${WORDPRESS_DB_HOST}"
-- wp core install --path="${WORDPRESS_DIR}" --skip-email --url="http://localhost" --title="Test" --admin_user="test" --admin_password="test" --admin_email="test@test.com"
+- wp-cli.phar core download --path="${WORDPRESS_DIR}"
+- wp-cli.phar config create --path="${WORDPRESS_DIR}" --force --dbname="${WORDPRESS_DB_NAME}" --dbuser="${WORDPRESS_DB_USER}" --dbpass="${WORDPRESS_DB_PASSWORD}" --dbhost="${WORDPRESS_DB_HOST}"
+- wp-cli.phar core install --path="${WORDPRESS_DIR}" --skip-email --url="http://localhost" --title="Test" --admin_user="test" --admin_password="test" --admin_email="test@test.com"
 
 jobs:
   include:
