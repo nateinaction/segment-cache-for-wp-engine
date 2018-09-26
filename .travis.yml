@@ -28,28 +28,26 @@ env:
     - WORDPRESS_TEST_HARNESS="/tmp/wordpress-tests-lib"
 
 before_install:
-- composer self-update
-- mkdir -p ${WORDPRESS_DIR}
-- mkdir -p ${WORDPRESS_TEST_HARNESS}
-- mysql -e "create database IF NOT EXISTS $WORDPRESS_DB_NAME;" -uroot
-# Install wp test harness
-- ./docker/bin/install-wp-tests.sh wordpress wordpress password mysql latest true
-# Install wp-cli
-- mkdir -p tools
-- wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -P $(pwd)/tools/
-- chmod +x tools/wp-cli.phar
-- export PATH=$PATH:$(pwd)/tools
-- export PATH=vendor/bin:$PATH
+  - composer self-update
+  - mkdir -p ${WORDPRESS_DIR}
+  - mkdir -p ${WORDPRESS_TEST_HARNESS}
+  - mysql -e "create database IF NOT EXISTS $WORDPRESS_DB_NAME;" -uroot
+  # Install wp test harness
+  - ./docker/bin/install-wp-tests.sh wordpress root "" 127.0.0.1 latest true
+  # Install wp-cli
+  - mkdir -p tools
+  - wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -P $(pwd)/tools/
+  - chmod +x tools/wp-cli.phar
+  - export PATH=$PATH:$(pwd)/tools
+  - export PATH=vendor/bin:$PATH
 
 install:
-- composer install -o --prefer-dist --no-interaction
-# Install WP
-- wp-cli.phar core download --path="${WORDPRESS_DIR}"
-- wp-cli.phar config create --path="${WORDPRESS_DIR}" --force --dbname="${WORDPRESS_DB_NAME}" --dbuser="${WORDPRESS_DB_USER}" --dbpass="${WORDPRESS_DB_PASSWORD}" --dbhost="${WORDPRESS_DB_HOST}"
-- wp-cli.phar core install --path="${WORDPRESS_DIR}" --skip-email --url="http://localhost" --title="Test" --admin_user="test" --admin_password="test" --admin_email="test@test.com"
+  - composer install -o --prefer-dist --no-interaction
+  # Install WP
+  - wp-cli.phar core download --path="${WORDPRESS_DIR}"
+  - wp-cli.phar config create --path="${WORDPRESS_DIR}" --force --dbname="${WORDPRESS_DB_NAME}" --dbuser="${WORDPRESS_DB_USER}" --dbpass="${WORDPRESS_DB_PASSWORD}" --dbhost="${WORDPRESS_DB_HOST}"
+  - wp-cli.phar core install --path="${WORDPRESS_DIR}" --skip-email --url="http://localhost" --title="Test" --admin_user="test" --admin_password="test" --admin_email="test@test.com"
 
-jobs:
-  include:
-    - stage: "Lint"
-      name: "Lint php"
-      script: ./vendor/bin/phpcs --standard=./test/phpcs.xml --warning-severity=8 .
+script:
+  - ./vendor/bin/phpcs --standard=./test/phpcs.xml --warning-severity=8 .
+  - ./vendor/bin/phpunit -c ./test/phpunit.xml --testsuite=segment-cache-for-wp-engine-unit-tests
