@@ -20,22 +20,21 @@ cache:
 
 env:
   global:
+    - WORDPRESS_VERSION="latest"
     - WORDPRESS_DB_NAME="wordpress"
     - WORDPRESS_DB_USER="wordpress"
     - WORDPRESS_DB_PASSWORD="password"
     - WORDPRESS_DB_HOST="localhost"
     - WORDPRESS_DIR="/tmp/wordpress"
-    - WORDPRESS_TEST_HARNESS="/tmp/wordpress-tests-lib"
+    - WORDPRESS_TEST_HARNESS_DIR="/tmp/wordpress-tests-lib"
 
 before_install:
   - composer self-update
   - mkdir -p ${WORDPRESS_DIR}
-  - mkdir -p ${WORDPRESS_TEST_HARNESS}
+  - mkdir -p ${WORDPRESS_TEST_HARNESS_DIR}
   - mysql -e "CREATE DATABASE $WORDPRESS_DB_NAME;" -uroot
   - mysql -e "GRANT ALL PRIVILEGES ON *.* TO '${WORDPRESS_DB_USER}'@'${WORDPRESS_DB_HOST}' IDENTIFIED BY '${WORDPRESS_DB_PASSWORD}';"
-  # Install wp test harness
-  - ./docker/bin/install-wp-tests.sh ${WORDPRESS_DB_NAME} ${WORDPRESS_DB_USER} ${WORDPRESS_DB_PASSWORD} ${WORDPRESS_DB_HOST} latest true
-  # Install wp-cli
+  # Install WP CLI
   - mkdir -p tools
   - wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -P $(pwd)/tools/
   - chmod +x tools/wp-cli.phar
@@ -48,7 +47,11 @@ install:
   - wp-cli.phar core download --path="${WORDPRESS_DIR}"
   - wp-cli.phar config create --path="${WORDPRESS_DIR}" --force --dbname="${WORDPRESS_DB_NAME}" --dbuser="${WORDPRESS_DB_USER}" --dbpass="${WORDPRESS_DB_PASSWORD}" --dbhost="${WORDPRESS_DB_HOST}"
   - wp-cli.phar core install --path="${WORDPRESS_DIR}" --skip-email --url="http://localhost" --title="Test" --admin_user="test" --admin_password="test" --admin_email="test@test.com"
+  # Install WP Test Harness
+  - ./docker/bin/install-wp-tests.sh
 
 script:
+  # Lint
   - ./vendor/bin/phpcs --standard=./test/phpcs.xml --warning-severity=8 .
+  # Test
   - ./vendor/bin/phpunit -c ./test/phpunit.xml --testsuite=segment-cache-for-wp-engine-unit-tests
