@@ -1,21 +1,55 @@
-sudo: required
+sudo: false
+language: php
+php:
+  - '7.2'
+  - '7.0'
 
 services:
-  - docker
+  - mysql
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - php: 7.2
+
+cache:
+  apt: true
+  directories:
+    - $HOME/.composer/cache
+    - vendor
+
+env:
+  global:
+    - WORDPRESS_DB_NAME="wordpress"
+    - WORDPRESS_DB_USER="wordpress"
+    - WORDPRESS_DB_PASSWORD="password"
+    - WORDPRESS_DB_HOST="127.0.0.1"
+    - WORDPRESS_DIR="/tmp/wordpress"
+    - WORDPRESS_TEST_HARNESS="/tmp/wordpress-tests-lib"
+
+before_install:
+- composer self-update
+- mkdir -p ${WORDPRESS_DIR}
+- mkdir -p ${WORDPRESS_TEST_HARNESS}
+- mysql -e "create database IF NOT EXISTS $WORDPRESS_DB_NAME;" -uroot
+# Install wp test harness
+- ./docker/bin/install-wp-tests.sh wordpress wordpress password mysql latest true
+# Install wp-cli
+- mkdir -p tools
+- wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -P $(pwd)/tools/
+- chmod +x tools/wp-cli.phar && mv tools/wp-cli.phar tools/wp
+- export PATH=$PATH:$(pwd)/tools
+- export PATH=vendor/bin:$PATH
+
+install:
+- composer install -o --prefer-dist --no-interaction
+# Install WP
+- wp core download ${WORDPRESS_DIR}
+- wp config create ${WORDPRESS_DIR} --force --dbname="${WORDPRESS_DB_NAME}" --dbuser="${WORDPRESS_DB_USER}" --dbpass="${WORDPRESS_DB_PASSWORD}" --dbhost="${WORDPRESS_DB_HOST}"
+- wp core install ${WORDPRESS_DIR} --skip-email --url="http://localhost" --title="Test" --admin_user="test" --admin_password="test" --admin_email="test@test.com"
 
 jobs:
   include:
-    - stage: "Build and Setup Docker"
-      script: make docker_start
-      script: make docker_install_wp
     - stage: "Lint"
-      script: make lint_yaml
-      script: make lint_markdown
-      script: make lint_python
-      script: make lint_php
-    - stage: "Unit Test"
-      script: make docker_unit
-    - stage: "Smoke Test"
-      script: make docker_smoke
-    - stage: "Package Zip"
-      script: make docker_build
+      name: "Lint php"
+      script: ./vendor/bin/phpcs --standard=./test/phpcs.xml --warning-severity=8 .
