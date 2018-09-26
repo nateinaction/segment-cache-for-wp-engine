@@ -21,8 +21,8 @@ cache:
 env:
   global:
     - WORDPRESS_DB_NAME="wordpress"
-    - WORDPRESS_DB_USER="root"
-    - WORDPRESS_DB_PASSWORD=""
+    - WORDPRESS_DB_USER="wordpress"
+    - WORDPRESS_DB_PASSWORD="password"
     - WORDPRESS_DB_HOST="127.0.0.1"
     - WORDPRESS_DIR="/tmp/wordpress"
     - WORDPRESS_TEST_HARNESS="/tmp/wordpress-tests-lib"
@@ -31,9 +31,10 @@ before_install:
   - composer self-update
   - mkdir -p ${WORDPRESS_DIR}
   - mkdir -p ${WORDPRESS_TEST_HARNESS}
+  - mysqladmin create ${WORDPRESS_DB_NAME} --user="${WORDPRESS_DB_USER}" --password="${WORDPRESS_DB_PASSWORD}"
   - mysql -e "create database IF NOT EXISTS $WORDPRESS_DB_NAME;" -uroot
   # Install wp test harness
-  - ./docker/bin/install-wp-tests.sh wordpress root "" 127.0.0.1 latest true
+  - ./docker/bin/install-wp-tests.sh ${WORDPRESS_DB_NAME} ${WORDPRESS_DB_USER} ${WORDPRESS_DB_PASSWORD} ${WORDPRESS_DB_HOST} latest true
   # Install wp-cli
   - mkdir -p tools
   - wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -P $(pwd)/tools/
