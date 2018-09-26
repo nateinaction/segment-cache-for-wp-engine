@@ -25,6 +25,7 @@ env:
     - WORDPRESS_DB_HOST="localhost"
     - WORDPRESS_DIR="/tmp/wordpress"
     - WORDPRESS_TEST_HARNESS_DIR="/tmp/wordpress-tests-lib"
+    - ARTIFACTS_DIR="artifacts"
     - CC_TEST_REPORTER_ID=2d773f8f5f842d9c9c908bee57904e8d1d7213ec1d023c9bf8773e4a56f78318
 
 before_install:
@@ -53,7 +54,7 @@ install:
 before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
-  - ./cc-test-reporter before-build
+  - ./cc-test-reporter before-build --debug
 
 script:
   # Lint
@@ -62,4 +63,4 @@ script:
   - ./vendor/bin/phpunit -c ./test/phpunit.xml --testsuite=segment-cache-for-wp-engine-unit-tests
 
 after_script:
-  - ./cc-test-reporter after-build --debug --exit-code $TRAVIS_TEST_RESULT
+  - ./cc-test-reporter after-build --debug --prefix ${ARTIFACTS_DIR} -t clover --exit-code $TRAVIS_TEST_RESULT
