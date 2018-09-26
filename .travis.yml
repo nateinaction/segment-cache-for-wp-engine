@@ -44,9 +44,9 @@ before_install:
 install:
 - composer install -o --prefer-dist --no-interaction
 # Install WP
-- wp core download ${WORDPRESS_DIR}
-- wp config create ${WORDPRESS_DIR} --force --dbname="${WORDPRESS_DB_NAME}" --dbuser="${WORDPRESS_DB_USER}" --dbpass="${WORDPRESS_DB_PASSWORD}" --dbhost="${WORDPRESS_DB_HOST}"
-- wp core install ${WORDPRESS_DIR} --skip-email --url="http://localhost" --title="Test" --admin_user="test" --admin_password="test" --admin_email="test@test.com"
+- wp core download --path="${WORDPRESS_DIR}"
+- wp config create --path="${WORDPRESS_DIR}" --force --dbname="${WORDPRESS_DB_NAME}" --dbuser="${WORDPRESS_DB_USER}" --dbpass="${WORDPRESS_DB_PASSWORD}" --dbhost="${WORDPRESS_DB_HOST}"
+- wp core install --path="${WORDPRESS_DIR}" --skip-email --url="http://localhost" --title="Test" --admin_user="test" --admin_password="test" --admin_email="test@test.com"
 
 jobs:
   include:
