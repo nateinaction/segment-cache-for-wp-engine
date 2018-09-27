@@ -21,6 +21,9 @@ all: docker_start docker_all
 shell:
 	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "/bin/bash"
 
+docker_setup_wp_core:
+	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "make setup_wp_core"
+
 docker_start:
 	$(DOCKER_COMPOSE) up -d --build
 
@@ -58,7 +61,7 @@ install_wp_cli:
 install_wp: setup_wp_core setup_wp_config setup_wp_db
 
 setup_wp_core:
-	wp core download --path="$(WORDPRESS_DIR)" --force
+	wp core download --force --path="$(WORDPRESS_DIR)"
 
 setup_wp_config:
 	wp config create --path="$(WORDPRESS_DIR)" --force \
@@ -92,6 +95,6 @@ build:
 	rm -rf build/$(PLUGIN_NAME)
 	rm -rf build/$(PLUGIN_NAME).zip
 	mkdir -p build/$(PLUGIN_NAME)
-	cp -r {$(PLUGIN_NAME).php,src/,composer.json,composer.lock} build/$(PLUGIN_NAME)
-	composer install -d build/$(plugin_name) --no-dev --prefer-dist --no-interaction
+	cp -rt build/$(PLUGIN_NAME) composer.json composer.lock $(PLUGIN_NAME).php src/
+	composer install -d build/$(PLUGIN_NAME) --no-dev --prefer-dist --no-interaction
 	cd build/ && zip -r $(PLUGIN_NAME).zip $(PLUGIN_NAME)
