@@ -18,21 +18,18 @@ cache:
 
 env:
   global:
+    - PLUGIN_NAME="segment-cache-for-wp-engine"
     - WORDPRESS_VERSION="latest"
     - WORDPRESS_DB_NAME="wordpress"
     - WORDPRESS_DB_USER="wordpress"
     - WORDPRESS_DB_PASSWORD="password"
     - WORDPRESS_DB_HOST="localhost"
     - WORDPRESS_DIR="/tmp/wordpress"
-    - WORDPRESS_TEST_HARNESS_DIR="/tmp/wordpress-tests-lib"
-    - CC_TEST_REPORTER_ID=2d773f8f5f842d9c9c908bee57904e8d1d7213ec1d023c9bf8773e4a56f78318
+    - WORDPRESS_TEST_HARNESS_DIR="/tmp/wordpress-test-harness"
+    - CC_TEST_REPORTER_ID="2d773f8f5f842d9c9c908bee57904e8d1d7213ec1d023c9bf8773e4a56f78318"
 
 before_install:
   - composer self-update
-  # Setup Tools dir and PATH to bin dirs
-  - mkdir -p tools
-  - export PATH=$PATH:$(pwd)/tools
-  - export PATH=vendor/bin:$PATH
   # Setup WP DB and dir
   - mkdir -p ${WORDPRESS_DIR}
   - mysql -e "CREATE DATABASE $WORDPRESS_DB_NAME;" -uroot
@@ -41,14 +38,14 @@ before_install:
 install:
   - composer install -o --prefer-dist --no-interaction
   # Install WP CLI
-  - wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -P $(pwd)/tools/
-  - chmod +x tools/wp-cli.phar
+  - curl -o $HOME/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+  - chmod +x $HOME/bin/wp
   # Install WP
-  - wp-cli.phar core download --path="${WORDPRESS_DIR}"
-  - wp-cli.phar config create --path="${WORDPRESS_DIR}" --force --dbname="${WORDPRESS_DB_NAME}" --dbuser="${WORDPRESS_DB_USER}" --dbpass="${WORDPRESS_DB_PASSWORD}" --dbhost="${WORDPRESS_DB_HOST}"
-  - wp-cli.phar core install --path="${WORDPRESS_DIR}" --skip-email --url="http://localhost" --title="Test" --admin_user="test" --admin_password="test" --admin_email="test@test.com"
+  - wp core download --path="${WORDPRESS_DIR}"
+  - wp config create --path="${WORDPRESS_DIR}" --force --dbname="${WORDPRESS_DB_NAME}" --dbuser="${WORDPRESS_DB_USER}" --dbpass="${WORDPRESS_DB_PASSWORD}" --dbhost="${WORDPRESS_DB_HOST}"
+  - wp core install --path="${WORDPRESS_DIR}" --skip-email --url="http://localhost" --title="Test" --admin_user="test" --admin_password="test" --admin_email="test@test.com"
   # Install WP Test Harness
-  - ./docker/bin/install-wp-tests.sh
+  - ./bin/install-wp-test-harness.sh
 
 before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
@@ -59,7 +56,7 @@ script:
   # Lint
   - ./vendor/bin/phpcs --standard=./test/phpcs.xml --warning-severity=8 .
   # Test
-  - ./vendor/bin/phpunit -c ./test/phpunit.xml --testsuite=segment-cache-for-wp-engine-unit-tests
+  - ./vendor/bin/phpunit -c ./test/phpunit.xml --testsuite=${PLUGIN_NAME}-unit-tests
 
 after_script:
-  - ./cc-test-reporter after-build --debug -t clover --exit-code $TRAVIS_TEST_RESULT
+  - ./cc-test-reporter after-build -t clover --exit-code $TRAVIS_TEST_RESULT

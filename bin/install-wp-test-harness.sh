@@ -6,7 +6,7 @@ WORDPRESS_DB_USER=${WORDPRESS_DB_USER-wordpress}
 WORDPRESS_DB_PASS=${WORDPRESS_DB_PASS-password}
 WORDPRESS_DB_HOST=${WORDPRESS_DB_HOST-localhost}
 WORDPRESS_DIR=${WORDPRESS_DIR-/tmp/wordpress}
-WORDPRESS_TEST_HARNESS_DIR=${WORDPRESS_TEST_HARNESS_DIR-/tmp/wordpress-tests-lib}
+WORDPRESS_TEST_HARNESS_DIR=${WORDPRESS_TEST_HARNESS_DIR-/tmp/wordpress-test-harness}
 
 download() {
     if [ `which curl` ]; then
