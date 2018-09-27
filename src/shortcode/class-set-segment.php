@@ -18,17 +18,25 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Add a WordPress shortcode to set a cache segment
  */
 class Set_Segment {
+
+	/**
+	 * Name of the WP Engine cookie that creates the segment
+	 *
+	 * @const string
+	 */
+	const COOKIE_NAME = 'wpe-us';
+
 	/**
 	 * Default attributes for set_segment shortcode
 	 *
 	 * @var array
 	 */
 	public $default_atts = array(
-		'wpe-us'   => 'default',
-		'path'     => '/',
-		'max-age'  => '31536000',
-		'secure'   => 'false',
-		'samesite' => 'lax',
+		self::COOKIE_NAME => 'default',
+		'path'            => '/',
+		'max-age'         => '31536000',
+		'secure'          => 'false',
+		'samesite'        => 'lax',
 	);
 
 	/**
@@ -38,7 +46,7 @@ class Set_Segment {
 	 * @var array
 	 */
 	public $valid_atts = array(
-		'wpe-us',
+		self::COOKIE_NAME,
 		'path',
 		'domain',
 		'max-age',
@@ -52,7 +60,7 @@ class Set_Segment {
 	 *
 	 * @var string
 	 */
-	public $cookie_string = 'wpe-us=default';
+	public $cookie_string = self::COOKIE_NAME . '=default';
 
 	/**
 	 * Constructor
@@ -65,7 +73,7 @@ class Set_Segment {
 	 * Hook WordPress to add shortcode
 	 */
 	public function add_shortcode() {
-		add_shortcode( 'segment-cache-set', array( $this, 'set_segment' ) );
+		add_shortcode( 'segment-cache-set', array( $this, 'set_segment_cookie' ) );
 	}
 
 	/**
@@ -75,11 +83,11 @@ class Set_Segment {
 	 *
 	 * @param array $atts Key/value store of shortcode attributes as input from user.
 	 */
-	public function set_segment( $atts = [] ) {
+	public function set_segment_cookie( $atts = [] ) {
 		if ( isset( $atts['segment-name'] ) ) {
-			$atts['wpe-us']      = $atts['segment-name'];
-			$atts                = $this->validate_atts( $atts );
-			$this->cookie_string = $this->atts_to_cookie_string( $atts );
+			$atts[ self::COOKIE_NAME ] = $atts['segment-name'];
+			$atts                      = $this->validate_atts( $atts );
+			$this->cookie_string       = $this->atts_to_cookie_string( $atts );
 			$this->add_to_footer();
 		}
 	}

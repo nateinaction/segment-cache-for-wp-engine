@@ -1,105 +1,103 @@
-SHELL := /bin/bash
+# User editable vars
+PLUGIN_NAME ?= segment-cache-for-wp-engine
+WORDPRESS_VERSION ?= latest
+WORDPRESS_DB_NAME ?= wordpress
+WORDPRESS_DB_USER ?= wordpress
+WORDPRESS_DB_PASSWORD ?= password
+WORDPRESS_DB_HOST ?= localhost
+WORDPRESS_DIR ?= /tmp/wordpress
+WORDPRESS_TEST_HARNESS_DIR ?= /tmp/wordpress-test-harness
+BIN_DIR ?= /usr/local/bin
 
-plugin_name := segment-cache-for-wp-engine
+# Shortcuts
+DOCKER_COMPOSE := @docker-compose -f docker/docker-compose.yml
+DOCKER_EXEC := exec -u www-data wordpress /bin/bash -c
 
-plugin_dir := /var/www/html/wp-content/plugins/$(plugin_name)/
-cd_plugin_dir := cd $(plugin_dir)
+# Makefile phony
+.PHONY: test build
 
-docker_compose := @docker-compose -f docker/docker-compose.yml
-docker_exec := exec wordpress /bin/bash -c
-docker_run_silent := @docker run --rm -t
-
-www_data := @sudo -u www-data
-cli_skip := --skip-themes --skip-plugins
-cli_path := --path="/var/www/html/"
-
-all: lint docker_start docker_install_wp docker_test docker_build
+all: docker_start docker_all
 
 shell:
-	$(docker_compose) $(docker_exec) "$(cd_plugin_dir); /bin/bash"
+	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "/bin/bash"
 
-lint: lint_yaml lint_markdown lint_python lint_php
-
-test: unit install_wp smoke
+docker_setup_wp_core:
+	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "make setup_wp_core"
 
 docker_start:
-	$(docker_compose) up -d --build
+	$(DOCKER_COMPOSE) up -d --build
 
 docker_stop:
-	$(docker_compose) stop
+	$(DOCKER_COMPOSE) stop
 
 docker_clean:
-	$(docker_compose) stop | true
-	$(docker_compose) rm -v
+	$(DOCKER_COMPOSE) stop | true
+	$(DOCKER_COMPOSE) rm -v
 
-docker_build:
-	$(docker_compose) $(docker_exec) "$(cd_plugin_dir); make build"
-
-docker_install_wp:
-	$(docker_compose) $(docker_exec) "$(cd_plugin_dir); make install_wp"
+docker_all:
+	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "pwd; make composer_self_update install lint test build"
 
 docker_test:
-	$(docker_compose) $(docker_exec) "$(cd_plugin_dir); make test"
+	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "make lint test"
 
-lint_php:
-	$(docker_compose) $(docker_exec) "$(plugin_dir)vendor/bin/phpcs --standard=$(plugin_dir)test/phpcs.xml --warning-severity=8 $(plugin_dir)"
+docker_build:
+	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "make build"
 
 docker_phpcbf:
-	$(docker_compose) $(docker_exec) "$(plugin_dir)vendor/bin/phpcbf --standard=$(plugin_dir)test/phpcs.xml $(plugin_dir)"
+	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "make phpcbf"
 
-lint_python:
-	$(docker_run_silent) -v `pwd`:$(plugin_dir) wpengine/pylint:latest "$(plugin_dir)/test/smoke/" --errors-only
+composer_self_update:
+	composer self-update
 
-lint_markdown:
-	@# exclude MD013 "line too long"
-	@# exclude MD024 "allow different nesting"
-	@# exclude MD046 "code block style"
-	$(docker_run_silent) -v `pwd`:$(plugin_dir) wpengine/mdl:latest --rules ~MD013,~MD024,~MD046 "$(plugin_dir)/README.md"
+install: composer_install install_wp_cli install_wp install_wp_test_harness
 
-lint_yaml:
-	$(docker_run_silent) -v `pwd`:$(plugin_dir) wpengine/yamllint:latest "$(plugin_dir)/docker/"
+composer_install:
+	composer install -o --prefer-dist --no-interaction
 
-smoke:
-	python3 -m pytest -v -r s "$(plugin_dir)test/smoke/"
+install_wp_cli:
+	curl -o $(BIN_DIR)/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
+    && chmod +x $(BIN_DIR)/wp
 
-unit:
-	$(plugin_dir)vendor/bin/phpunit -c "$(plugin_dir)test/phpunit.xml" --testsuite=$(plugin_name)-unit-tests
+install_wp: setup_wp_core setup_wp_config setup_wp_db
 
-install_wp: setup_core setup_config setup_db
+setup_wp_core:
+	wp core download --force --path="$(WORDPRESS_DIR)"
 
-setup_core:
-	$(www_data) wp core download $(cli_path) --force
-
-setup_config:
-	$(www_data) wp config create $(cli_path) --force \
+setup_wp_config:
+	wp config create --path="$(WORDPRESS_DIR)" --force \
 		--dbname="${WORDPRESS_DB_NAME}" \
 		--dbuser="${WORDPRESS_DB_USER}" \
 		--dbpass="${WORDPRESS_DB_PASSWORD}" \
 		--dbhost="${WORDPRESS_DB_HOST}"
 
-setup_db:
-	$(www_data) wp db reset $(cli_path) --yes
-	$(www_data) wp core install $(cli_path) --skip-email \
+setup_wp_db:
+	wp db reset --path="$(WORDPRESS_DIR)" --yes
+	wp core install --path="$(WORDPRESS_DIR)" --skip-email \
 		--url="http://localhost" \
 		--title="Test" \
 		--admin_user="test" \
 		--admin_password="test" \
 		--admin_email="test@test.com"
-	$(www_data) wp plugin activate $(plugin_name) $(cli_path) --quiet
 
-load_test_content:
-	$(www_data) wp plugin install wordpress-importer --activate
-	$(www_data) wp import $(plugin_dir)test/files/test-post-content.xml --authors=skip
+install_wp_test_harness:
+	./bin/install-wp-test-harness.sh
 
-place_test_mu_plugin:
-	cp $(plugin_dir)test/files/test-server-var-set.php /var/www/html/wp-content/mu-plugins
+lint:
+	./vendor/bin/phpcs --standard=./test/phpcs.xml --warning-severity=8 .
 
-remove_test_mu_plugin:
-	rm -rf /var/www/html/wp-content/mu-plugins/test-server-var-set.php
+phpcbf:
+	./vendor/bin/phpcbf --standard=./test/phpcs.xml .
+
+test:
+	./vendor/bin/phpunit -c ./test/phpunit.xml --testsuite=$(PLUGIN_NAME)-unit-tests
 
 build:
-	mkdir -p build/$(plugin_name) artifacts
-	cp -r {$(plugin_name).php,src/,composer.json,composer.lock} build/$(plugin_name)
-	composer install -d build/$(plugin_name) --no-dev
-	cd build/ && sh ../docker/bin/build-zip.sh
-	rm -r build/
+	rm -rf build/$(PLUGIN_NAME)
+	rm -rf build/$(PLUGIN_NAME).zip
+	mkdir -p build/$(PLUGIN_NAME)
+	cp -rt build/$(PLUGIN_NAME) composer.json composer.lock $(PLUGIN_NAME).php src/
+	composer install -d build/$(PLUGIN_NAME) --no-dev --prefer-dist --no-interaction
+	cd build/ && zip -r $(PLUGIN_NAME).zip $(PLUGIN_NAME)
+
+plugin_version:
+	wp plugin get $(PLUGIN_NAME) --format=json | python3 -c 'import sys, json; print(json.load(sys.stdin)["version"])'
