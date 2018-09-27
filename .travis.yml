@@ -49,3 +49,20 @@ script:
 
 after_script:
   - ./cc-test-reporter after-build -t clover --exit-code $TRAVIS_TEST_RESULT
+
+before_deploy:
+  - git config --local user.name "nateinaction"
+  - git config --local user.email "email@nategay.me"
+  - git tag "$(make plugin_version)"
+
+deploy:
+  provider: releases
+  api_key:
+    secure: TQkHF0zPq+udwMz+ctoSKylOgpZyq3hqU5xQ9e19CuqVt51AsezlA/v0MInpDvabMSD4EZcBFR5HfwqGxToGoc+Uwr6ItU9rfelbCmvZRnsvtBurcwew0yzmecSIR+h1fkYZ3h2ZkKGCcqTKbP+WOaaz/9079fp4IiXqY7IiHA/CZ0ljY9Om1iJ6Vy18iid23Ph8sQlt4y7134WehvSGDHl3R7ReisKT8JTeei0/PR6/Yp/siLEwh/qzP+AOw81H5sbM4Z/CLKTD3CWaljphVh9C1ss0UGomO78EYDJqFsEuddAnlBFMK2KV4TEAL7GSVQ7nSxhLo34lYePm2//EByTnr+QZO4MnX9Sw38FN5XzwMtasByOkfI5RaCOLfp2hJ+5qkl9uCKu4Qlbh+wQ6itrBsfBwhQkC4oLFV56A2mpO1Vdb6jKYotFpVP+Uq5yYwMNohyyQRKtVQ8YC5R6ch6/CI6/uscYdPfs3COrNpBf6V9+wmsjee6cVfAkBbAKFqghxAhU/e5YYcOfKSJ+CJsdoO2itxG+7nFAjHNMp30BbMKL/TlWvw9PxD39HKdUUMsnWRZjr24kqwb5BhpTtSfOSDZH4JTkau5yBrDQaoA1fkx6YrFoVDdwx10UZH6UB7q6NpG+V+2pv0r6/fM0LR+2tAys99fYnoiBh5l88PLs=
+  skip_cleanup: true
+  file: build/segment-cache-for-wp-engine.zip
+  on:
+    php: 7.2
+    repo: nateinaction/segment-cache-for-wp-engine
+    branch: master
+    tags: true
