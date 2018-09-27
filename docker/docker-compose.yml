@@ -21,6 +21,7 @@ services:
     links:
       - db:mysql
     volumes:
+      - ../:/workspace
       - ../:/var/www/html/wp-content/plugins/segment-cache-for-wp-engine
     environment:
       WORDPRESS_DB_HOST: mysql:3306

@@ -26,26 +26,17 @@ env:
     - WORDPRESS_DB_HOST="localhost"
     - WORDPRESS_DIR="/tmp/wordpress"
     - WORDPRESS_TEST_HARNESS_DIR="/tmp/wordpress-test-harness"
+    - BIN_DIR="$HOME/bin"
     - CC_TEST_REPORTER_ID="2d773f8f5f842d9c9c908bee57904e8d1d7213ec1d023c9bf8773e4a56f78318"
 
 before_install:
-  - composer self-update
-  # Setup WP DB and dir
-  - mkdir -p ${WORDPRESS_DIR}
+  - make composer_self_update
+  # Setup WP DB
   - mysql -e "CREATE DATABASE $WORDPRESS_DB_NAME;" -uroot
   - mysql -e "GRANT ALL PRIVILEGES ON *.* TO '${WORDPRESS_DB_USER}'@'${WORDPRESS_DB_HOST}' IDENTIFIED BY '${WORDPRESS_DB_PASSWORD}';"
 
 install:
-  - composer install -o --prefer-dist --no-interaction
-  # Install WP CLI
-  - curl -o $HOME/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-  - chmod +x $HOME/bin/wp
-  # Install WP
-  - wp core download --path="${WORDPRESS_DIR}"
-  - wp config create --path="${WORDPRESS_DIR}" --force --dbname="${WORDPRESS_DB_NAME}" --dbuser="${WORDPRESS_DB_USER}" --dbpass="${WORDPRESS_DB_PASSWORD}" --dbhost="${WORDPRESS_DB_HOST}"
-  - wp core install --path="${WORDPRESS_DIR}" --skip-email --url="http://localhost" --title="Test" --admin_user="test" --admin_password="test" --admin_email="test@test.com"
-  # Install WP Test Harness
-  - ./bin/install-wp-test-harness.sh
+  - make install
 
 before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
@@ -53,10 +44,8 @@ before_script:
   - ./cc-test-reporter before-build
 
 script:
-  # Lint
-  - ./vendor/bin/phpcs --standard=./test/phpcs.xml --warning-severity=8 .
-  # Test
-  - ./vendor/bin/phpunit -c ./test/phpunit.xml --testsuite=${PLUGIN_NAME}-unit-tests
+  - make lint
+  - make test
 
 after_script:
   - ./cc-test-reporter after-build -t clover --exit-code $TRAVIS_TEST_RESULT

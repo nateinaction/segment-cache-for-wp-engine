@@ -5,9 +5,10 @@
     <rule ref="WordPress-Extra"/>
 
 	<!-- Excluded these dirs -->
-	<exclude-pattern>./vendor/*</exclude-pattern>
 	<exclude-pattern>./bin/*</exclude-pattern>
-	<exclude-pattern>./artifacts/*</exclude-pattern>
+	<exclude-pattern>./build/*</exclude-pattern>
+	<exclude-pattern>./docker/*</exclude-pattern>
+	<exclude-pattern>./vendor/*</exclude-pattern>
 
     <!-- Show sniff codes in all reports -->
 	<arg value="s"/>

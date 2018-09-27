@@ -22,21 +22,12 @@ RUN apt-get update && apt-get install -qq -y --fix-missing --no-install-recommen
 # Install xdebug
 RUN pecl install xdebug && docker-php-ext-enable xdebug
 
+# Set perms on site and bin dirs
+RUN chown -R www-data:www-data /var/www/ /usr/local/bin/
+
 # Install Composer
 COPY bin/install-composer.sh /tmp/
-RUN mkdir /var/www/.composer/ && chown www-data:www-data /var/www/.composer/ \
-    && bash /tmp/install-composer.sh
+RUN bash /tmp/install-composer.sh
 
-# Install WP Test Harness
-RUN bin/install-wp-test-harness.sh
-
-# Install WP CLI
-RUN curl -o /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
-    && chmod 755 /usr/local/bin/wp \
-    && mkdir /var/www/.wp-cli/
-
-# Install stop-emails mu plugin
-COPY docker/bin/stop-emails.php /var/www/html/wp-content/mu-plugins/
-
-# Set permissions on WordPress and WordPress Test Lib directories
-RUN chown -R www-data:www-data /var/www/ /tmp/wordpress-tests-lib/
+# Set workdir to plugin dir
+WORKDIR /var/www/html/wp-content/plugins/segment-cache-for-wp-engine
