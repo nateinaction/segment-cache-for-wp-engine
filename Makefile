@@ -97,7 +97,5 @@ build:
 	mkdir -p build/$(PLUGIN_NAME)
 	cp -rt build/$(PLUGIN_NAME) composer.json composer.lock $(PLUGIN_NAME).php src/
 	composer install -d build/$(PLUGIN_NAME) --no-dev --prefer-dist --no-interaction
+	awk '/Version/{printf $$NF}' $(PLUGIN_NAME).php > build/VERSION
 	cd build/ && zip -r $(PLUGIN_NAME).zip $(PLUGIN_NAME)
-
-plugin_version:
-	wp plugin get $(PLUGIN_NAME) --format=json | python3 -c 'import sys, json; print(json.load(sys.stdin)["version"])'
