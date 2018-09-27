@@ -67,11 +67,11 @@ class SetSegment_Test extends \WP_UnitTestCase {
 
 		// Test when no attributes passed.
 		$atts = array();
-		$shortcode_mock->set_segment( $atts );
+		$shortcode_mock->set_segment_cookie( $atts );
 
 		// Test when no segment-name attribute passed.
 		$atts = array( 'path' => '/blah' );
-		$shortcode_mock->set_segment( $atts );
+		$shortcode_mock->set_segment_cookie( $atts );
 
 		// Test that validate_set_segment_atts and setcookie are run when valid segment-name passed.
 		$shortcode_mock->expects( $this->once() )
@@ -84,7 +84,7 @@ class SetSegment_Test extends \WP_UnitTestCase {
 			->method( 'add_to_footer' );
 
 		$atts = array( 'segment-name' => 'blah' );
-		$shortcode_mock->set_segment( $atts );
+		$shortcode_mock->set_segment_cookie( $atts );
 	}
 
 	/**

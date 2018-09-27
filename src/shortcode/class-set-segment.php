@@ -73,7 +73,7 @@ class Set_Segment {
 	 * Hook WordPress to add shortcode
 	 */
 	public function add_shortcode() {
-		add_shortcode( 'segment-cache-set', array( $this, 'set_segment' ) );
+		add_shortcode( 'segment-cache-set', array( $this, 'set_segment_cookie' ) );
 	}
 
 	/**
@@ -83,7 +83,7 @@ class Set_Segment {
 	 *
 	 * @param array $atts Key/value store of shortcode attributes as input from user.
 	 */
-	public function set_segment( $atts = [] ) {
+	public function set_segment_cookie( $atts = [] ) {
 		if ( isset( $atts['segment-name'] ) ) {
 			$atts[ self::COOKIE_NAME ] = $atts['segment-name'];
 			$atts                      = $this->validate_atts( $atts );
