@@ -5,7 +5,7 @@
  * @package segment-cache-for-wp-engine
  */
 
-$_tests_dir = '/tmp/wordpress-tests-lib';
+$_tests_dir = '/tmp/wordpress-test-harness';
 
 /**
  * The WordPress tests functions.
