@@ -112,4 +112,4 @@ build: create_version_file
 	cd $(BUILD_DIR)/ && zip -r $(PLUGIN_NAME).zip $(PLUGIN_NAME)
 
 wordpress_org_deploy:
-	./bin/wordpress-org-deploy.sh
+	#./bin/wordpress-org-deploy.sh # disabled for now
