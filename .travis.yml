@@ -16,6 +16,9 @@ cache:
     - $HOME/.composer/cache
     - vendor
 
+notifications:
+  email: false
+
 env:
   global:
     - PLUGIN_NAME="segment-cache-for-wp-engine"
@@ -46,6 +49,7 @@ before_script:
 script:
   - make lint
   - make test
+  - make build
 
 after_script:
   - ./cc-test-reporter after-build -t clover --exit-code $TRAVIS_TEST_RESULT
@@ -53,7 +57,7 @@ after_script:
 before_deploy:
   - git config --local user.name "nateinaction"
   - git config --local user.email "email@nategay.me"
-  - git tag "$(make plugin_version)"
+  - git tag "v$(cat build/VERSION)-${TRAVIS_BUILD_NUMBER}"
 
 deploy:
   provider: releases
@@ -65,4 +69,3 @@ deploy:
     php: 7.2
     repo: nateinaction/segment-cache-for-wp-engine
     branch: master
-    tags: true
