@@ -8,6 +8,8 @@ WORDPRESS_DB_HOST ?= localhost
 WORDPRESS_DIR ?= /tmp/wordpress
 WORDPRESS_TEST_HARNESS_DIR ?= /tmp/wordpress-test-harness
 BIN_DIR ?= /usr/local/bin
+BUILD_DIR ?= build
+SVN_DIR ?= svn
 
 # Shortcuts
 DOCKER_COMPOSE := @docker-compose -f docker/docker-compose.yml
@@ -35,7 +37,7 @@ docker_clean:
 	$(DOCKER_COMPOSE) rm -v
 
 docker_all:
-	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "pwd; make composer_self_update install lint test build"
+	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "pwd; make before_install install lint test build"
 
 docker_test:
 	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "make lint test"
@@ -45,6 +47,16 @@ docker_build:
 
 docker_phpcbf:
 	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "make phpcbf"
+
+before_install: verify_new_version composer_self_update
+
+create_version_file:
+	mkdir -p $(BUILD_DIR)
+	awk '/Version/{printf $$NF}' $(PLUGIN_NAME).php > $(BUILD_DIR)/VERSION
+
+verify_new_version: create_version_file
+	if curl -sI "https://api.github.com/repos/nateinaction/$(PLUGIN_NAME)/releases/tags/v$(shell cat $(BUILD_DIR)/VERSION)" \
+	| grep -q '404 Not Found'; then exit; fi; echo "Version $(shell cat $(BUILD_DIR)/VERSION) already exists or unexpected Github API return."; exit 1;
 
 composer_self_update:
 	composer self-update
@@ -91,11 +103,13 @@ phpcbf:
 test:
 	./vendor/bin/phpunit -c ./test/phpunit.xml --testsuite=$(PLUGIN_NAME)-unit-tests
 
-build:
-	rm -rf build/$(PLUGIN_NAME)
-	rm -rf build/$(PLUGIN_NAME).zip
-	mkdir -p build/$(PLUGIN_NAME)
-	cp -rt build/$(PLUGIN_NAME) composer.json composer.lock $(PLUGIN_NAME).php src/
-	composer install -d build/$(PLUGIN_NAME) --no-dev --prefer-dist --no-interaction
-	awk '/Version/{printf $$NF}' $(PLUGIN_NAME).php > build/VERSION
-	cd build/ && zip -r $(PLUGIN_NAME).zip $(PLUGIN_NAME)
+build: create_version_file
+	rm -rf $(BUILD_DIR)/$(PLUGIN_NAME)
+	rm -rf $(BUILD_DIR)/$(PLUGIN_NAME).zip
+	mkdir -p $(BUILD_DIR)/$(PLUGIN_NAME)
+	cp -rt $(BUILD_DIR)/$(PLUGIN_NAME) composer.json composer.lock $(PLUGIN_NAME).php src/
+	composer install -d $(BUILD_DIR)/$(PLUGIN_NAME) --no-dev --prefer-dist --no-interaction
+	cd $(BUILD_DIR)/ && zip -r $(PLUGIN_NAME).zip $(PLUGIN_NAME)
+
+wordpress_org_deploy:
+	./bin/wordpress-org-deploy.sh

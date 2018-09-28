@@ -1,6 +1,7 @@
 # project
 /artifacts/
 /build/
+/svn/
 /vendor/
 *.zip
 
