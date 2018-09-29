@@ -59,10 +59,14 @@ after_script:
   - ./cc-test-reporter after-build -t clover --exit-code $TRAVIS_TEST_RESULT
 
 before_deploy:
-  - BUILD_VERSION=$(cat ${BUILD_DIR}/VERSION)
-  - git config --local user.name "nateinaction"
-  - git config --local user.email "email@nategay.me"
-  - git tag "v${BUILD_VERSION}"
+  - >
+    if ! [ "$BEFORE_DEPLOY_RUN" ]; then
+      export BEFORE_DEPLOY_RUN=1;
+      export BUILD_VERSION=$(cat ${BUILD_DIR}/VERSION);
+      git config --local user.name "nateinaction";
+      git config --local user.email "email@nategay.me";
+      git tag "v${BUILD_VERSION}";
+    fi
 
 deploy:
   - provider: releases
