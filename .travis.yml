@@ -19,6 +19,10 @@ cache:
 notifications:
   email: false
 
+branches:
+  except:
+    - /^v[0-9]/
+
 env:
   global:
     - PLUGIN_NAME="segment-cache-for-wp-engine"
