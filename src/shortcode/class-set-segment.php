@@ -63,20 +63,6 @@ class Set_Segment {
 	public $cookie_string = self::COOKIE_NAME . '=default';
 
 	/**
-	 * Constructor
-	 */
-	public function __construct() {
-		$this->add_shortcode();
-	}
-
-	/**
-	 * Hook WordPress to add shortcode
-	 */
-	public function add_shortcode() {
-		add_shortcode( 'segment-cache-set', array( $this, 'set_segment_cookie' ) );
-	}
-
-	/**
 	 * Set Segment
 	 *
 	 * This function acts as a factory and orchestrates all cookie setting actions after shortcode is invoked
@@ -145,5 +131,13 @@ class Set_Segment {
 		echo '<script type="text/javascript">';
 		echo 'document.cookie = "' . esc_attr( $this->cookie_string ) . '";';
 		echo '</script>';
+	}
+
+	/**
+	 * Hook WordPress to add shortcode
+	 */
+	public static function add_shortcode() {
+		$set_segment = new Set_Segment();
+		add_shortcode( 'segment-cache-set', array( $set_segment, 'set_segment_cookie' ) );
 	}
 }

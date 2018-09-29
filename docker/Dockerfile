@@ -1,3 +1,5 @@
+# The wordpress:php7.2 image includes a pretty obtrusive entrypoint
+# FROM php:7.2-apache
 FROM wordpress:php7.2
 
 # Install apt dependencies
@@ -28,6 +30,3 @@ RUN chown -R www-data:www-data /var/www/ /usr/local/bin/
 # Install Composer
 COPY bin/install-composer.sh /tmp/
 RUN bash /tmp/install-composer.sh
-
-# Set workdir to plugin dir
-WORKDIR /var/www/html/wp-content/plugins/segment-cache-for-wp-engine

@@ -12,10 +12,21 @@ namespace SegmentCacheWPE\Shortcode;
  */
 class DisplaySegment_Test extends \WP_UnitTestCase {
 	/**
-	 * Ensure shortcode is added when class is initialized
+	 * Shortcode is automatically added when bootstrap.php loads segment-cache-for-wp-engine.php.
+	 * Let's remove it so we can test some things.
 	 */
-	public function test_shortcode_added_on_init() {
-		new Display_Segment();
+	public function setUp() {
+		remove_shortcode( 'segment-cache-display' );
+	}
+
+	/**
+	 * Ensure shortcode is added
+	 */
+	public function test_adding_shortcode() {
+		$shortcode_exists = shortcode_exists( 'segment-cache-display' );
+		$this->assertFalse( $shortcode_exists );
+
+		Display_Segment::add_shortcode();
 		$shortcode_exists = shortcode_exists( 'segment-cache-display' );
 		$this->assertTrue( $shortcode_exists );
 	}
