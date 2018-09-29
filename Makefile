@@ -1,3 +1,5 @@
+.PHONY: test build
+
 # User editable vars
 PLUGIN_NAME ?= segment-cache-for-wp-engine
 WORDPRESS_VERSION ?= latest
@@ -14,11 +16,11 @@ SVN_DIR ?= svn
 # Shortcuts
 DOCKER_COMPOSE := @docker-compose -f docker/docker-compose.yml
 DOCKER_EXEC := exec -u www-data wordpress /bin/bash -c
+CD_TO_PLUGIN := cd wp-content/plugins/$(PLUGIN_NAME);
+LINT_CMD := ./vendor/bin/phpcs --standard=./test/phpcs.xml --warning-severity=8 .
 
-# Makefile phony
-.PHONY: test build
-
-all: docker_start docker_all
+# Commands
+all: docker_clean docker_start docker_all
 
 shell:
 	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "/bin/bash"
@@ -34,19 +36,19 @@ docker_stop:
 
 docker_clean:
 	$(DOCKER_COMPOSE) stop | true
-	$(DOCKER_COMPOSE) rm -v
+	$(DOCKER_COMPOSE) rm -vf
 
 docker_all:
-	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "pwd; make before_install install lint test build"
+	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "$(CD_TO_PLUGIN) make before_install install lint test build"
 
 docker_test:
-	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "make lint test"
+	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "$(CD_TO_PLUGIN) make lint_local test"
 
 docker_build:
-	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "make build"
+	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "$(CD_TO_PLUGIN) make build"
 
 docker_phpcbf:
-	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "make phpcbf"
+	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "$(CD_TO_PLUGIN) make phpcbf"
 
 before_install: verify_new_version composer_self_update
 
@@ -95,13 +97,16 @@ install_wp_test_harness:
 	./bin/install-wp-test-harness.sh
 
 lint:
-	./vendor/bin/phpcs --standard=./test/phpcs.xml --warning-severity=8 .
+	$(LINT_CMD)
+
+lint_local:
+	$(LINT_CMD) || true
 
 phpcbf:
 	./vendor/bin/phpcbf --standard=./test/phpcs.xml .
 
 test:
-	./vendor/bin/phpunit -c ./test/phpunit.xml --testsuite=$(PLUGIN_NAME)-unit-tests
+	./vendor/bin/phpunit -c ./test/phpunit.xml --testsuite=unit-tests
 
 build: create_version_file
 	rm -rf $(BUILD_DIR)/$(PLUGIN_NAME)

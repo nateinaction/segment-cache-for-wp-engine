@@ -12,10 +12,21 @@ namespace SegmentCacheWPE\Shortcode;
  */
 class SetSegment_Test extends \WP_UnitTestCase {
 	/**
-	 * Ensure shortcode is added when class is initialized
+	 * Shortcode is automatically added when bootstrap.php loads segment-cache-for-wp-engine.php.
+	 * Let's remove it so we can test some things.
 	 */
-	public function test_shortcode_added_on_init() {
-		new Set_Segment();
+	public function setUp() {
+		remove_shortcode( 'segment-cache-set' );
+	}
+
+	/**
+	 * Ensure shortcode is added
+	 */
+	public function test_adding_shortcode() {
+		$shortcode_exists = shortcode_exists( 'segment-cache-set' );
+		$this->assertFalse( $shortcode_exists );
+
+		Set_Segment::add_shortcode();
 		$shortcode_exists = shortcode_exists( 'segment-cache-set' );
 		$this->assertTrue( $shortcode_exists );
 	}

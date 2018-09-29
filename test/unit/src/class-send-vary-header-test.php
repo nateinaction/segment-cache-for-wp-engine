@@ -18,12 +18,12 @@ class SendVaryHeader_Test extends \WP_UnitTestCase {
 	 */
 	public function test_constructor_logic() {
 		// Test without segment_name.
-		$send_vary_header = new Send_Vary_Header();
-		$hook_priority    = has_action( 'send_headers', array( $send_vary_header, 'add_action' ) );
+		$send_vary_header = Send_Vary_Header::add_action();
+		$hook_priority    = has_action( 'send_headers', array( $send_vary_header, 'set_vary_header' ) );
 		$this->assertFalse( $hook_priority );
 
 		// Test with segment_name.
-		$send_vary_header = new Send_Vary_Header( 'test' );
+		$send_vary_header = Send_Vary_Header::add_action( 'test' );
 		$hook_priority    = has_action( 'send_headers', array( $send_vary_header, 'set_vary_header' ) );
 		$this->assertInternalType( 'int', $hook_priority );
 	}
@@ -34,7 +34,7 @@ class SendVaryHeader_Test extends \WP_UnitTestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_set_vary_header() {
-		new Send_Vary_Header( 'hello' );
+		Send_Vary_Header::add_action( 'hello' );
 		do_action( 'send_headers' );
 		$expect         = 'Vary: X-WPENGINE-SEGMENT';
 		$headers_string = join( '', xdebug_get_headers() );

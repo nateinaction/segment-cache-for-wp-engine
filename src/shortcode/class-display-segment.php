@@ -33,14 +33,6 @@ class Display_Segment {
 	 */
 	public function __construct( $segment_name = null ) {
 		$this->header_name = $segment_name;
-		$this->add_shortcode();
-	}
-
-	/**
-	 * Hook WordPress to add shortcode
-	 */
-	public function add_shortcode() {
-		add_shortcode( 'segment-cache-display', array( $this, 'display_segmented_content' ) );
 	}
 
 	/**
@@ -89,5 +81,15 @@ class Display_Segment {
 	public function escape_content( $atts = [], $content = '' ) {
 		$dangerously_set_html = isset( $atts['dangerously-set-html'] ) ? $atts['dangerously-set-html'] : false;
 		return $dangerously_set_html ? $content : esc_html( $content );
+	}
+
+	/**
+	 * Hook WordPress to add shortcode
+	 *
+	 * @param $segment_name null|string $segment_name Name of header to segment on.
+	 */
+	public static function add_shortcode( $segment_name = null ) {
+		$display_segment = new Display_Segment( $segment_name );
+		add_shortcode( 'segment-cache-display', array( $display_segment, 'display_segmented_content' ) );
 	}
 }

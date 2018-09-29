@@ -1,6 +1,6 @@
 <phpunit colors="true" bootstrap="bootstrap.php" convertNoticesToExceptions="true">
     <testsuites>
-        <testsuite name="segment-cache-for-wp-engine-unit-tests">
+        <testsuite name="unit-tests">
             <directory suffix="-test.php">unit</directory>
             <exclude>
                 <directory>../bin</directory>
