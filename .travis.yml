@@ -19,10 +19,6 @@ cache:
 notifications:
   email: false
 
-branches:
-  except:
-    - /^v[0-9]/
-
 env:
   global:
     - PLUGIN_NAME="segment-cache-for-wp-engine"
@@ -37,11 +33,14 @@ env:
     - BIN_DIR="${HOME}/bin"
     - BUILD_DIR="build"
     - SVN_DIR="svn"
+    - PHP_BUILD_VERSION="7.2"
     - secure: sx8pGq/XJz1cHPLwuNVk8uVcKrQVNGiEpm6b8OJlcaHJWFbRxFS1zON9F/2cwsZcf3taay5sqH31BiO/8Tvw0AcsDWfEcKuaaDfyorCAdrtG0XtabDAn9Cj3uD0dBv9s+ZAzB3Zr+MR9FwxkebdlKnl0gPG1/Re5aeiQqDSuS7EwMrSwV9nOXcpZHT9bUnma/xosrwd0v/5Ts96XolDAR/uqgoQ6oSrH9iQApZobe6bowad5h5+x8LMeFG8De3DDBAnllmzg5QNsUAo1e0PDH1TLLp6LdkqNMTS6JhECvW5uvyWFBb6Y5C1ME8ZQBKm5b3tJ6zo4dPZ44MWL3xprE/MK86fvgWe2WIn52CKoFlspUuXdXUjJAUqDMp0T5ln0IkQtCxzYUMxcpG6w35yjrGA37gCJNPLAIPIe2vJ/LYxmwebZIQKYfDr2rihw1to8aQ8Qq/nYdlk2N82NYJB2A3qB4r92oYtElwqO7QsrCGI+lepvuLe2bk3AImdgy/w0uZnGPPQPKcpwkvMUq4jTEkZZa2rYJ8O2aO9VLvKHoQlaoiI+bG2jDYQVHUakjzHRaADjbjdaEIyZPuGHmo/bWQWjEAvuSdCJdlr7OsHJerc6z8fH5HwT4Cb4RkVS1PB4g1rUrdeEVnhESL2B07HyllBZAfH2W55U91zpFA8Nc7k=
     - secure: erv9uLQ8Sf4+v52gle3NKoLni944/NtmllEfnN5K3hxjbVnJH8XnPUGWf0z8U2ZoIf2uUPft5How6g/LrABqSQBiLyBMWcxzSjcAezIXnrDlW09lQJrA6IPBIpSrJErF0ngp1qMdh2REWKf5mN+MmL3DE8H8txjLUH8AjH+QCr+R8nWAYT2sV2uB7KP1kRjNxocZdfddQ346ELjt9ZRWSKyhW+1pZO6FL4othJtUuyOXwYgJjeLWdVFMlNr5Pe7v6K9OQSovE34TlhxdpWOBPkvUMtb6NxqOG5hHQ9t9RPtQX1/TKUOQB3mevj5UTcs+tdx8OudZlgFS/pZDqdFI4Qx1MGmcxXjKaHWSKENJ0K4blF47olefeJUaitXzK4xEs2mePk4RK7X9W0mt2n5LmMoQGguK0accn5koTBZ0t7z4cI4mmLDTWrmJEnzJtZfyUi0kIsDkfp9SBYmge/Bj/up7crnpYhA/0t9sxMtAy3AkgahK4zK3gHVeduQAm6Sg39G7v5CnhXC9zlRnpmTta2OFw8JbRpb3W52r12YbFDF/4SqKhibmfNmP+Qxh0k/71kStN1lkd4ZDxBZzIj0feUaO+fNhcIqKvbEa9rrv7CWetmSQxRRE/N8fqG5a4uI+SiBAR5uatMP02Xbb4h37cJQgDu5tMsnTC/29ecspRIc=
 
 before_install:
-  - make before_install
+  # If PHP_BUILD_VERSION completes first on master, other PHP version builds will fail.
+  - if [ ${TRAVIS_PHP_VERSION} == ${PHP_BUILD_VERSION} ]; then make verify_new_version; fi
+  - make composer_self_update
   # Setup WP DB
   - mysql -e "CREATE DATABASE $WORDPRESS_DB_NAME;" -uroot
   - mysql -e "GRANT ALL PRIVILEGES ON *.* TO '${WORDPRESS_DB_USER}'@'${WORDPRESS_DB_HOST}' IDENTIFIED BY '${WORDPRESS_DB_PASSWORD}';"
@@ -62,6 +61,7 @@ script:
 after_script:
   - ./cc-test-reporter after-build -t clover --exit-code $TRAVIS_TEST_RESULT
 
+# Ensure before_deploy only runs once, default runs once per deploy provider
 before_deploy:
   - >
     if ! [ "$BEFORE_DEPLOY_RUN" ]; then
@@ -78,14 +78,20 @@ deploy:
       secure: TQkHF0zPq+udwMz+ctoSKylOgpZyq3hqU5xQ9e19CuqVt51AsezlA/v0MInpDvabMSD4EZcBFR5HfwqGxToGoc+Uwr6ItU9rfelbCmvZRnsvtBurcwew0yzmecSIR+h1fkYZ3h2ZkKGCcqTKbP+WOaaz/9079fp4IiXqY7IiHA/CZ0ljY9Om1iJ6Vy18iid23Ph8sQlt4y7134WehvSGDHl3R7ReisKT8JTeei0/PR6/Yp/siLEwh/qzP+AOw81H5sbM4Z/CLKTD3CWaljphVh9C1ss0UGomO78EYDJqFsEuddAnlBFMK2KV4TEAL7GSVQ7nSxhLo34lYePm2//EByTnr+QZO4MnX9Sw38FN5XzwMtasByOkfI5RaCOLfp2hJ+5qkl9uCKu4Qlbh+wQ6itrBsfBwhQkC4oLFV56A2mpO1Vdb6jKYotFpVP+Uq5yYwMNohyyQRKtVQ8YC5R6ch6/CI6/uscYdPfs3COrNpBf6V9+wmsjee6cVfAkBbAKFqghxAhU/e5YYcOfKSJ+CJsdoO2itxG+7nFAjHNMp30BbMKL/TlWvw9PxD39HKdUUMsnWRZjr24kqwb5BhpTtSfOSDZH4JTkau5yBrDQaoA1fkx6YrFoVDdwx10UZH6UB7q6NpG+V+2pv0r6/fM0LR+2tAys99fYnoiBh5l88PLs=
     skip_cleanup: true
     file: ${BUILD_DIR}/segment-cache-for-wp-engine.zip
-    on:
-      php: 7.2
-      repo: nateinaction/segment-cache-for-wp-engine
-      branch: master
   - provider: script
     script: make wordpress_org_deploy
     skip_cleanup: true
-    on:
-      php: 7.2
-      repo: nateinaction/segment-cache-for-wp-engine
-      branch: master
+
+# Prevent extra build when release is tagged.
+branches:
+  except:
+    - /^v[0-9]/
+
+# Ensure before_deploy and deploy only run on main branch and PHP version
+stages:
+  - name: before_deploy
+    if: branch = master
+    if: php = ${PHP_BUILD_VERSION}
+  - name: deploy
+    if: branch = master
+    if: php = ${PHP_BUILD_VERSION}
