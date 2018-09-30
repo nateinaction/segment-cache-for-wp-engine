@@ -39,7 +39,7 @@ docker_clean:
 	$(DOCKER_COMPOSE) rm -vf
 
 docker_all:
-	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "$(CD_TO_PLUGIN) make before_install install lint test build"
+	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "$(CD_TO_PLUGIN) make verify_new_version install lint test build"
 
 docker_test:
 	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "$(CD_TO_PLUGIN) make lint_local test"
@@ -50,20 +50,18 @@ docker_build:
 docker_phpcbf:
 	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "$(CD_TO_PLUGIN) make phpcbf"
 
-before_install: verify_new_version composer_self_update
+verify_new_version: create_version_file
+	if curl -sI "https://api.github.com/repos/nateinaction/$(PLUGIN_NAME)/releases/tags/v$(shell cat $(BUILD_DIR)/VERSION)" \
+	| grep -q '404 Not Found'; then exit; fi; echo "Version $(shell cat $(BUILD_DIR)/VERSION) already exists or unexpected Github API return."; exit 1;
 
 create_version_file:
 	mkdir -p $(BUILD_DIR)
 	awk '/Version/{printf $$NF}' $(PLUGIN_NAME).php > $(BUILD_DIR)/VERSION
 
-verify_new_version: create_version_file
-	if curl -sI "https://api.github.com/repos/nateinaction/$(PLUGIN_NAME)/releases/tags/v$(shell cat $(BUILD_DIR)/VERSION)" \
-	| grep -q '404 Not Found'; then exit; fi; echo "Version $(shell cat $(BUILD_DIR)/VERSION) already exists or unexpected Github API return."; exit 1;
+install: composer_self_update composer_install install_wp_cli install_wp install_wp_test_harness
 
 composer_self_update:
 	composer self-update
-
-install: composer_install install_wp_cli install_wp install_wp_test_harness
 
 composer_install:
 	composer install -o --prefer-dist --no-interaction
@@ -110,11 +108,11 @@ test:
 
 build: create_version_file
 	rm -rf $(BUILD_DIR)/$(PLUGIN_NAME)
-	rm -rf $(BUILD_DIR)/$(PLUGIN_NAME).zip
+	rm -rf $(BUILD_DIR)/$(PLUGIN_NAME)-$(shell cat $(BUILD_DIR)/VERSION).zip
 	mkdir -p $(BUILD_DIR)/$(PLUGIN_NAME)
 	cp -rt $(BUILD_DIR)/$(PLUGIN_NAME) composer.json composer.lock $(PLUGIN_NAME).php src/
 	composer install -d $(BUILD_DIR)/$(PLUGIN_NAME) --no-dev --prefer-dist --no-interaction
-	cd $(BUILD_DIR)/ && zip -r $(PLUGIN_NAME).zip $(PLUGIN_NAME)
+	cd $(BUILD_DIR)/ && zip -r $(PLUGIN_NAME)-$(shell cat $(BUILD_DIR)/VERSION).zip $(PLUGIN_NAME)
 
 wordpress_org_deploy:
 	#./bin/wordpress-org-deploy.sh # disabled for now
