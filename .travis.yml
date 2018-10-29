@@ -28,7 +28,7 @@ stages:
   - name: after_script
     if: branch = master
   - name: before_deploy
-    if: branch = master AND env(BUILD_VERSION) IS NOT present
+    if: branch = master
   - name: deploy
     if: branch = master
 
@@ -44,10 +44,13 @@ after_script:
   - ./cc-test-reporter after-build -t clover --exit-code $TRAVIS_TEST_RESULT
 
 before_deploy:
-  - export BUILD_VERSION="$(make get_version)"
-  - git config --local user.name "nateinaction";
-  - git config --local user.email "email@nategay.me";
-  - git tag "v${BUILD_VERSION}";
+  - >
+     if ! [ "${BUILD_VERSION}" ]; then
+       export BUILD_VERSION=$(make get_version);
+       git config --local user.name "nateinaction";
+       git config --local user.email "email@nategay.me";
+       git tag "v${BUILD_VERSION}";
+     fi
 
 deploy:
   - provider: releases

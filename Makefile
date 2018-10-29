@@ -12,7 +12,7 @@ COMPOSER_DIR := -d "/workspace/"
 BUILD_DIR := ./build
 
 # Commands
-all: lint verify_new_version composer_install test build
+all: verify_new_version lint composer_install test build
 
 lint:
 	$(DOCKER_RUN) $(PHPCS_DOCKER_IMAGE) .
