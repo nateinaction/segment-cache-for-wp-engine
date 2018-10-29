@@ -1,0 +1,26 @@
+{
+  "name": "segment-cache-for-wp-engine",
+  "description": "WordPress plugin to implement segment caching shortcodes on WP Engine",
+  "homepage": "https://github.com/nateinaction/segment-cache-for-wp-engine",
+  "version": "1.0.0",
+  "license": "GPL-2.0-or-later",
+  "author": "nateinaction",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nateinaction/segment-cache-for-wp-engine.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nateinaction/segment-cache-for-wp-engine/issues"
+  },
+  "devDependencies": {
+    "eslint": "^5.6.1",
+    "eslint-config-wordpress": "^2.0.0",
+    "eslint-plugin-wordpress": "^0.1.0"
+  }
+}
