@@ -8,9 +8,7 @@
 namespace SegmentCacheWPE\Shortcode;
 
 // Prevent direct access.
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Class Set_Segment
@@ -104,7 +102,8 @@ class Set_Segment {
 	 */
 	public function atts_to_cookie_string( $atts = [] ) {
 		return implode(
-			';', array_map(
+			';',
+			array_map(
 				function ( $val, $key ) {
 					return "{$key}={$val}";
 				},

@@ -1,6 +1,7 @@
 # project
 /artifacts/
 /build/
+/node_modules/
 /svn/
 /vendor/
 *.zip
