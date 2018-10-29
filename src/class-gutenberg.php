@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * Use WordPress's add_action to register Gutenberg blocks
  */
-class Gutenberg_Blocks {
+class Gutenberg {
 
 	/**
 	 * List of blocks to register
@@ -53,7 +53,7 @@ class Gutenberg_Blocks {
 	/**
 	 * Hook WordPress to register Gutenberg blocks if Gutenberg is available.
 	 *
-	 * @return null|Gutenberg_Blocks
+	 * @return null|Gutenberg
 	 */
 	public static function add_action() {
 		// Once gutenberg is part of core this can be removed.
@@ -61,8 +61,8 @@ class Gutenberg_Blocks {
 			return;
 		}
 
-		$gutenberg_blocks = new Gutenberg_Blocks();
-		add_action( 'init', array( $gutenberg_blocks, 'register_blocks' ) );
-		return $gutenberg_blocks;
+		$gutenberg = new Gutenberg();
+		add_action( 'init', array( $gutenberg, 'register_blocks' ) );
+		return $gutenberg;
 	}
 }
