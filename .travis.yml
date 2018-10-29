@@ -11,6 +11,7 @@ cache:
 
 env:
   global:
+    - BUILD_DIR="build"
     - secure: sx8pGq/XJz1cHPLwuNVk8uVcKrQVNGiEpm6b8OJlcaHJWFbRxFS1zON9F/2cwsZcf3taay5sqH31BiO/8Tvw0AcsDWfEcKuaaDfyorCAdrtG0XtabDAn9Cj3uD0dBv9s+ZAzB3Zr+MR9FwxkebdlKnl0gPG1/Re5aeiQqDSuS7EwMrSwV9nOXcpZHT9bUnma/xosrwd0v/5Ts96XolDAR/uqgoQ6oSrH9iQApZobe6bowad5h5+x8LMeFG8De3DDBAnllmzg5QNsUAo1e0PDH1TLLp6LdkqNMTS6JhECvW5uvyWFBb6Y5C1ME8ZQBKm5b3tJ6zo4dPZ44MWL3xprE/MK86fvgWe2WIn52CKoFlspUuXdXUjJAUqDMp0T5ln0IkQtCxzYUMxcpG6w35yjrGA37gCJNPLAIPIe2vJ/LYxmwebZIQKYfDr2rihw1to8aQ8Qq/nYdlk2N82NYJB2A3qB4r92oYtElwqO7QsrCGI+lepvuLe2bk3AImdgy/w0uZnGPPQPKcpwkvMUq4jTEkZZa2rYJ8O2aO9VLvKHoQlaoiI+bG2jDYQVHUakjzHRaADjbjdaEIyZPuGHmo/bWQWjEAvuSdCJdlr7OsHJerc6z8fH5HwT4Cb4RkVS1PB4g1rUrdeEVnhESL2B07HyllBZAfH2W55U91zpFA8Nc7k=
     - secure: erv9uLQ8Sf4+v52gle3NKoLni944/NtmllEfnN5K3hxjbVnJH8XnPUGWf0z8U2ZoIf2uUPft5How6g/LrABqSQBiLyBMWcxzSjcAezIXnrDlW09lQJrA6IPBIpSrJErF0ngp1qMdh2REWKf5mN+MmL3DE8H8txjLUH8AjH+QCr+R8nWAYT2sV2uB7KP1kRjNxocZdfddQ346ELjt9ZRWSKyhW+1pZO6FL4othJtUuyOXwYgJjeLWdVFMlNr5Pe7v6K9OQSovE34TlhxdpWOBPkvUMtb6NxqOG5hHQ9t9RPtQX1/TKUOQB3mevj5UTcs+tdx8OudZlgFS/pZDqdFI4Qx1MGmcxXjKaHWSKENJ0K4blF47olefeJUaitXzK4xEs2mePk4RK7X9W0mt2n5LmMoQGguK0accn5koTBZ0t7z4cI4mmLDTWrmJEnzJtZfyUi0kIsDkfp9SBYmge/Bj/up7crnpYhA/0t9sxMtAy3AkgahK4zK3gHVeduQAm6Sg39G7v5CnhXC9zlRnpmTta2OFw8JbRpb3W52r12YbFDF/4SqKhibmfNmP+Qxh0k/71kStN1lkd4ZDxBZzIj0feUaO+fNhcIqKvbEa9rrv7CWetmSQxRRE/N8fqG5a4uI+SiBAR5uatMP02Xbb4h37cJQgDu5tMsnTC/29ecspRIc=
 
@@ -27,7 +28,7 @@ stages:
   - name: after_script
     if: branch = master
   - name: before_deploy
-    if: branch = master
+    if: branch = master AND env(BUILD_VERSION) IS NOT present
   - name: deploy
     if: branch = master
 
@@ -43,13 +44,10 @@ after_script:
   - ./cc-test-reporter after-build -t clover --exit-code $TRAVIS_TEST_RESULT
 
 before_deploy:
-  - >
-    if ! [ "${BUILD_VERSION}" ]; then
-      export BUILD_VERSION=$(make get_version);
-      git config --local user.name "nateinaction";
-      git config --local user.email "email@nategay.me";
-      git tag "v${BUILD_VERSION}";
-    fi
+  - export BUILD_VERSION="$(make get_version)"
+  - git config --local user.name "nateinaction";
+  - git config --local user.email "email@nategay.me";
+  - git tag "v${BUILD_VERSION}";
 
 deploy:
   - provider: releases
