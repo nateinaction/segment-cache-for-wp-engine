@@ -8,9 +8,7 @@
 namespace SegmentCacheWPE;
 
 // Prevent direct access.
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Class Send_Vary_Header

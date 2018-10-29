@@ -8,9 +8,7 @@
 namespace SegmentCacheWPE\Shortcode;
 
 // Prevent direct access.
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Class Display_Segment

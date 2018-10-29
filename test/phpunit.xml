@@ -1,11 +1,11 @@
 <phpunit colors="true" bootstrap="bootstrap.php" convertNoticesToExceptions="true">
     <testsuites>
-        <testsuite name="unit-tests">
+        <testsuite name="integration-tests">
             <directory suffix="-test.php">unit</directory>
             <exclude>
-                <directory>../bin</directory>
                 <directory>../build</directory>
-                <directory>../docker</directory>
+                <directory>../node_modules</directory>
+                <directory>../vendor</directory>
                 <directory>../test</directory>
                 <directory>../vendor</directory>
             </exclude>
@@ -38,9 +38,8 @@
                 processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">../</directory>
             <exclude>
-                <directory>../bin</directory>
                 <directory>../build</directory>
-                <directory>../docker</directory>
+                <directory>../node_modules</directory>
                 <directory>../test</directory>
                 <directory>../vendor</directory>
             </exclude>

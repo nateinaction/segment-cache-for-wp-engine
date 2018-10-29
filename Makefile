@@ -1,118 +1,53 @@
 .PHONY: test build
 
 # User editable vars
-PLUGIN_NAME ?= segment-cache-for-wp-engine
-WORDPRESS_VERSION ?= latest
-WORDPRESS_DB_NAME ?= wordpress
-WORDPRESS_DB_USER ?= wordpress
-WORDPRESS_DB_PASSWORD ?= password
-WORDPRESS_DB_HOST ?= localhost
-WORDPRESS_DIR ?= /tmp/wordpress
-WORDPRESS_TEST_HARNESS_DIR ?= /tmp/wordpress-test-harness
-BIN_DIR ?= /usr/local/bin
-BUILD_DIR ?= build
-SVN_DIR ?= svn
+PLUGIN_NAME := segment-cache-for-wp-engine
 
 # Shortcuts
-DOCKER_COMPOSE := @docker-compose -f docker/docker-compose.yml
-DOCKER_EXEC := exec -u www-data wordpress /bin/bash -c
-CD_TO_PLUGIN := cd wp-content/plugins/$(PLUGIN_NAME);
-LINT_CMD := ./vendor/bin/phpcs --standard=./test/phpcs.xml --warning-severity=8 .
+DOCKER_RUN := @docker run --rm -v `pwd`:/workspace
+PHPCS_DOCKER_IMAGE := wpengine/phpcs --standard=./test/phpcs.xml --warning-severity=8
+WORDPRESS_INTEGRATION_DOCKER_IMAGE := nateinaction/wordpress-integration
+COMPOSER_DOCKER_IMAGE := composer
+COMPOSER_DIR := -d "/workspace/"
+BUILD_DIR := ./build
 
 # Commands
-all: docker_clean docker_start docker_all
-
-shell:
-	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "/bin/bash"
-
-docker_setup_wp_core:
-	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "make setup_wp_core"
-
-docker_start:
-	$(DOCKER_COMPOSE) up -d --build
-
-docker_stop:
-	$(DOCKER_COMPOSE) stop
-
-docker_clean:
-	$(DOCKER_COMPOSE) stop | true
-	$(DOCKER_COMPOSE) rm -vf
-
-docker_all:
-	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "$(CD_TO_PLUGIN) make verify_new_version install lint test build"
-
-docker_test:
-	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "$(CD_TO_PLUGIN) make lint_local test"
-
-docker_build:
-	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "$(CD_TO_PLUGIN) make build"
-
-docker_phpcbf:
-	$(DOCKER_COMPOSE) $(DOCKER_EXEC) "$(CD_TO_PLUGIN) make phpcbf"
-
-verify_new_version: create_version_file
-	if curl -sI "https://api.github.com/repos/nateinaction/$(PLUGIN_NAME)/releases/tags/v$(shell cat $(BUILD_DIR)/VERSION)" \
-	| grep -q '404 Not Found'; then exit; fi; echo "Version $(shell cat $(BUILD_DIR)/VERSION) already exists or unexpected Github API return."; exit 1;
-
-create_version_file:
-	mkdir -p $(BUILD_DIR)
-	awk '/Version/{printf $$NF}' $(PLUGIN_NAME).php > $(BUILD_DIR)/VERSION
-
-install: composer_self_update composer_install install_wp_cli install_wp install_wp_test_harness
-
-composer_self_update:
-	composer self-update
-
-composer_install:
-	composer install -o --prefer-dist --no-interaction
-
-install_wp_cli:
-	curl -o $(BIN_DIR)/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
-    && chmod +x $(BIN_DIR)/wp
-
-install_wp: setup_wp_core setup_wp_config setup_wp_db
-
-setup_wp_core:
-	wp core download --force --path="$(WORDPRESS_DIR)"
-
-setup_wp_config:
-	wp config create --path="$(WORDPRESS_DIR)" --force \
-		--dbname="${WORDPRESS_DB_NAME}" \
-		--dbuser="${WORDPRESS_DB_USER}" \
-		--dbpass="${WORDPRESS_DB_PASSWORD}" \
-		--dbhost="${WORDPRESS_DB_HOST}"
-
-setup_wp_db:
-	wp db reset --path="$(WORDPRESS_DIR)" --yes
-	wp core install --path="$(WORDPRESS_DIR)" --skip-email \
-		--url="http://localhost" \
-		--title="Test" \
-		--admin_user="test" \
-		--admin_password="test" \
-		--admin_email="test@test.com"
-
-install_wp_test_harness:
-	./bin/install-wp-test-harness.sh
+all: lint verify_new_version composer_install test build
 
 lint:
-	$(LINT_CMD)
-
-lint_local:
-	$(LINT_CMD) || true
+	$(DOCKER_RUN) $(PHPCS_DOCKER_IMAGE) .
 
 phpcbf:
-	./vendor/bin/phpcbf --standard=./test/phpcs.xml .
+	$(DOCKER_RUN) --entrypoint "/composer/vendor/bin/phpcbf" $(PHPCS_DOCKER_IMAGE) .
+
+composer_install:
+	$(DOCKER_RUN) $(COMPOSER_DOCKER_IMAGE) install $(COMPOSER_DIR)
+
+composer_update:
+	$(DOCKER_RUN) $(COMPOSER_DOCKER_IMAGE) update $(COMPOSER_DIR)
 
 test:
-	./vendor/bin/phpunit -c ./test/phpunit.xml --testsuite=unit-tests
+	$(DOCKER_RUN) -it $(WORDPRESS_INTEGRATION_DOCKER_IMAGE) "./vendor/bin/phpunit" -c "./test/phpunit.xml" --testsuite="integration-tests"
+
+verify_new_version: create_version_file
+	@if curl -sI "https://api.github.com/repos/nateinaction/$(PLUGIN_NAME)/releases/tags/v$(shell make get_version)" \
+	| grep -q '404 Not Found'; then exit; fi; echo "Version $(shell make get_version) already exists."; exit 1;
+
+create_version_file:
+	@mkdir -p $(BUILD_DIR)
+	@awk '/Version/{printf $$NF}' $(PLUGIN_NAME).php > $(BUILD_DIR)/VERSION
+
+get_version: create_version_file
+	@cat $(BUILD_DIR)/VERSION
 
 build: create_version_file
-	rm -rf $(BUILD_DIR)/$(PLUGIN_NAME)
-	rm -rf $(BUILD_DIR)/$(PLUGIN_NAME)-$(shell cat $(BUILD_DIR)/VERSION).zip
-	mkdir -p $(BUILD_DIR)/$(PLUGIN_NAME)
-	cp -rt $(BUILD_DIR)/$(PLUGIN_NAME) composer.json composer.lock $(PLUGIN_NAME).php src/
-	composer install -d $(BUILD_DIR)/$(PLUGIN_NAME) --no-dev --prefer-dist --no-interaction
-	cd $(BUILD_DIR)/ && zip -r $(PLUGIN_NAME)-$(shell cat $(BUILD_DIR)/VERSION).zip $(PLUGIN_NAME)
+	@rm -rf $(BUILD_DIR)/$(PLUGIN_NAME)
+	@rm -rf $(BUILD_DIR)/$(PLUGIN_NAME)-$(shell make get_version).zip
+	@mkdir -p $(BUILD_DIR)/$(PLUGIN_NAME)
+	@rsync -rR composer.json composer.lock $(PLUGIN_NAME).php src/ $(BUILD_DIR)/$(PLUGIN_NAME)/
+	$(DOCKER_RUN) $(COMPOSER_DOCKER_IMAGE) install -d /workspace/$(BUILD_DIR)/$(PLUGIN_NAME) --no-dev --prefer-dist --no-interaction
+	@rm $(BUILD_DIR)/$(PLUGIN_NAME)/composer.json $(BUILD_DIR)/$(PLUGIN_NAME)/composer.lock
+	@cd $(BUILD_DIR)/ && zip -r $(PLUGIN_NAME)-$(shell make get_version).zip $(PLUGIN_NAME)
 
 wordpress_org_deploy:
-	#./bin/wordpress-org-deploy.sh # disabled for now
+	# passing this for now

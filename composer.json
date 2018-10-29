@@ -2,7 +2,7 @@
     "name": "nateinaction/segment-cache-for-wp-engine",
     "description": "WordPress plugin to implement segment caching shortcodes on WP Engine",
     "type": "project",
-    "license": "GPL3+",
+    "license": "GPL-2.0-or-later",
     "authors": [
         {
             "name": "Nate Gay",
