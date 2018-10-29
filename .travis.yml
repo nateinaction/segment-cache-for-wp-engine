@@ -23,6 +23,7 @@ branches:
 stages:
   - name: before_script
     if: branch = master
+  - script
   - name: after_script
     if: branch = master
   - name: before_deploy
