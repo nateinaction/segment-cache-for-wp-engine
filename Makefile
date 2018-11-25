@@ -10,7 +10,7 @@ COMPOSER_IMAGE := -v ~/.composer/cache:/tmp/cache -v `pwd`:/app composer
 BUILD_DIR := ./build
 
 # Commands
-all: composer_install lint verify_new_version test_integration build
+all: verify_new_version composer_install lint test_integration build
 
 clean:
 	@rm -rf build
