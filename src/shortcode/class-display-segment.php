@@ -61,7 +61,7 @@ class Display_Segment {
 	public function should_show_content( $atts = [] ) {
 		$segment_name_set                       = isset( $atts['segment-name'] );
 		$segment_name                           = $segment_name_set ? $atts['segment-name'] : null;
-		$segment_name_eq_to_header_name         = $segment_name_set && $segment_name == $this->header_name;
+		$segment_name_eq_to_header_name         = $segment_name_set && $segment_name === $this->header_name;
 		$segment_name_and_header_name_are_unset = ! $segment_name_set && ! $this->header_name;
 		return $segment_name_eq_to_header_name || $segment_name_and_header_name_are_unset;
 	}

@@ -3,7 +3,7 @@
  * Plugin Name: Segment Cache for WP Engine
  * Plugin URI: http://wordpress.org/plugins/segment-cache-on-wp-engine/
  * Description: Implement Segmented Caching on WP Engine.
- * Version: 1.0.8
+ * Version: 1.0.11
  * Author: Nate Gay
  * Author URI: https://nategay.me/
  * License: GPL3+
@@ -24,11 +24,9 @@ require __DIR__ . '/vendor/autoload.php';
  * @return null|string Value of 'HTTP_X_WPENGINE_SEGMENT' server var
  */
 function get_segment_name() {
-	$segment_name = null;
 	if ( isset( $_SERVER['HTTP_X_WPENGINE_SEGMENT'] ) ) {
-		$segment_name = $_SERVER['HTTP_X_WPENGINE_SEGMENT'];
+		return sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_WPENGINE_SEGMENT'] ) );
 	}
-	return $segment_name;
 }
 $segment_name = get_segment_name();
 
