@@ -5,17 +5,16 @@ PLUGIN_NAME := segment-cache-for-wp-engine
 
 # Shortcuts
 DOCKER_RUN := docker run --rm -v `pwd`:/workspace
-WP_TEST_IMAGE := nateinaction/wordpress-integration
-COMPOSER_IMAGE := -v ~/.composer/cache:/tmp/cache -v `pwd`:/app composer
+WP_TEST_IMAGE := worldpeaceio/wordpress-integration
+COMPOSER_IMAGE := -v ~/.composer/cache:/tmp/cache -w /workspace composer
 BUILD_DIR := ./build
 
 # Commands
 all: verify_new_version composer_install lint test_integration build
 
 clean:
-	@rm -rf build
-	@rm -rf node_modules
-	@rm -rf vendor
+	rm -rf build
+	rm -rf vendor
 
 lint:
 	$(DOCKER_RUN) --entrypoint "/workspace/vendor/bin/phpcs" $(WP_TEST_IMAGE) .
@@ -49,6 +48,3 @@ build:
 	$(DOCKER_RUN) $(COMPOSER_IMAGE) install -d /workspace/$(BUILD_DIR)/$(PLUGIN_NAME) --no-dev --prefer-dist --no-interaction
 	rm $(BUILD_DIR)/$(PLUGIN_NAME)/composer.json $(BUILD_DIR)/$(PLUGIN_NAME)/composer.lock
 	@cd $(BUILD_DIR)/ && zip -r $(PLUGIN_NAME)-$(shell make get_version).zip $(PLUGIN_NAME)
-
-wordpress_org_deploy:
-	# passing this for now

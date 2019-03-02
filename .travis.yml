@@ -40,8 +40,9 @@ before_script:
 script:
   - make
 
-after_script:
+after_success:
   - ./cc-test-reporter after-build -t clover --exit-code $TRAVIS_TEST_RESULT
+  - bash <(curl -s https://codecov.io/bash)
 
 before_deploy:
   - >
