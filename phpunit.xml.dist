@@ -1,0 +1,25 @@
+<phpunit colors="true" bootstrap="test/bootstrap.php" convertNoticesToExceptions="true">
+    <testsuites>
+        <testsuite name="integration">
+            <directory suffix="-test.php">test/integration</directory>
+        </testsuite>
+    </testsuites>
+
+    <logging>
+        <log type="coverage-html" target="build/logs/code_coverage"/>
+        <log type="coverage-clover" target="build/logs/clover.xml"/>
+    </logging>
+
+    <filter>
+        <whitelist
+                addUncoveredFilesFromWhitelist="true"
+                processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">.</directory>
+            <exclude>
+                <directory>build</directory>
+                <directory>test</directory>
+                <directory>vendor</directory>
+            </exclude>
+        </whitelist>
+    </filter>
+</phpunit>
