@@ -7,14 +7,19 @@ PLUGIN_NAME := segment-cache-for-wp-engine
 DOCKER_RUN := docker run --rm -v `pwd`:/workspace
 WP_TEST_IMAGE := worldpeaceio/wordpress-integration
 COMPOSER_IMAGE := -v ~/.composer/cache:/tmp/cache -w /workspace composer
-BUILD_DIR := ./build
+BUILD_DIR := build
 
 # Commands
-all: verify_new_version composer_install lint test_integration build
+all: setup lint test build
 
 clean:
-	rm -rf build
+	rm -rf $(BUILD_DIR)
 	rm -rf vendor
+
+setup: verify_new_version make_dirs composer_install
+
+make_dirs:
+	mkdir -p $(BUILD_DIR)/$(PLUGIN_NAME)
 
 lint:
 	$(DOCKER_RUN) --entrypoint "/workspace/vendor/bin/phpcs" $(WP_TEST_IMAGE) .
@@ -28,7 +33,7 @@ composer_install:
 composer_update:
 	$(DOCKER_RUN) $(COMPOSER_IMAGE) update
 
-test: lint test_integration
+test: test_integration
 
 test_integration:
 	$(DOCKER_RUN) $(WP_TEST_IMAGE) "./vendor/bin/phpunit --testsuite integration"
