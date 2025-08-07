@@ -1,3 +1,6 @@
+> [!WARNING]  
+> This plugin is no longer supported. Archiving
+
 # Segment Cache for WP Engine
 [![Maintainability](https://api.codeclimate.com/v1/badges/5bb317ca377fec035d23/maintainability)](https://codeclimate.com/github/nateinaction/segment-cache-for-wp-engine/maintainability) [![codecov](https://codecov.io/gh/nateinaction/segment-cache-for-wp-engine/branch/master/graph/badge.svg)](https://codecov.io/gh/nateinaction/segment-cache-for-wp-engine) [![Build Status](https://travis-ci.org/nateinaction/segment-cache-for-wp-engine.svg?branch=master)](https://travis-ci.org/nateinaction/segment-cache-for-wp-engine)
 
